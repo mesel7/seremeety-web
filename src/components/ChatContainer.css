@@ -1,0 +1,10 @@
+.ChatContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    min-height: 100vh;
+}
+
+.ChatContainer h2 {
+    margin: 0;
+}

@@ -1,0 +1,10 @@
+.RequestContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    min-height: 100vh;
+}
+
+.RequestContainer h2 {
+    margin: 0;
+}

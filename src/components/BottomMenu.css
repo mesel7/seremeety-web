@@ -1,0 +1,19 @@
+.BottomMenu {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    z-index: 100;
+    display: flex;
+    background-color: #92a8d1;
+    justify-content: center;
+    padding: 10px 0;
+    gap: 65px;
+}
+
+@media (max-width: 420px) {
+    .BottomMenu {
+        padding: 2.4vw 0;
+        gap: 15.5vw;
+    }
+}

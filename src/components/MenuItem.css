@@ -1,0 +1,9 @@
+.MenuItem {
+    cursor: pointer;
+}
+
+@media (max-width: 420px) {
+    .MenuItem {
+        font-size: 3.75vw;
+    }
+}
