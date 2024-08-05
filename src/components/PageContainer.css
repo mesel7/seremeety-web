@@ -1,10 +1,12 @@
-.MypageContainer {
+.PageContainer {
     display: flex;
     flex-direction: column;
     padding: 30px;
+    padding-bottom: 120px;
+    gap: 20px;
     min-height: 100vh;
 }
 
-.MypageContainer h2 {
+.PageContainer h2 {
     margin: 0;
 }

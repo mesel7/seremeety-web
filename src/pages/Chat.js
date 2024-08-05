@@ -1,10 +1,10 @@
 import BottomMenu from "../components/BottomMenu";
-import ChatContainer from "../components/ChatContainer";
+import PageContainer from "../components/PageContainer";
 
 const Chat = () => {
     return (
         <div className="ChatList">
-            <ChatContainer />
+            <PageContainer page={"chat"} />
             <BottomMenu />
         </div>
     );

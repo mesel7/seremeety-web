@@ -1,3 +1,4 @@
+import Button from "./Button";
 import "./LoginForm.css";
 
 const LoginForm = ({ type, value, onChange, placeholder, btnText, onSubmit }) => {
@@ -9,7 +10,7 @@ const LoginForm = ({ type, value, onChange, placeholder, btnText, onSubmit }) =>
                 onChange={onChange}
                 placeholder={placeholder}
             />
-            <button onClick={onSubmit}>{btnText}</button>
+            <Button text={btnText} onClick={onSubmit} />
         </div>
     )
 };

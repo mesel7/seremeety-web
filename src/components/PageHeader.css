@@ -1,0 +1,29 @@
+.PageHeader {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.PageHeader h2 {
+    margin: 0;
+}
+
+.PageHeader .header_menu {
+    display: flex;
+    gap: 20px;
+}
+
+.PageHeader_mypage .my_note {
+    display: flex;
+    gap: 5px;
+}
+
+@media (max-width: 420px) {
+    .PageHeader h2 {
+        font-size: 5.7vw;
+    }
+
+    .PageHeader .header_menu {
+        font-size: 3.75vw;
+    }
+}

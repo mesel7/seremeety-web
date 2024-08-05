@@ -1,10 +1,10 @@
 import BottomMenu from "../components/BottomMenu";
-import MatchingContainer from "../components/MatchingContainer";
+import PageContainer from "../components/PageContainer";
 
 const Matching = () => {
     return (
         <div className="Matching">
-            <MatchingContainer />
+            <PageContainer page={"matching"} />
             <BottomMenu />
         </div>
     );

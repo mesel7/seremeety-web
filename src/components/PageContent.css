@@ -1,0 +1,10 @@
+.PageContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.PageContent_mypage img {
+    border: 1px solid #ececec;
+    border-radius: 5px;
+}

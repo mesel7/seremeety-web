@@ -1,10 +1,10 @@
 import BottomMenu from "../components/BottomMenu";
-import MypageContainer from "../components/MypageContainer";
+import PageContainer from "../components/PageContainer";
 
 const Mypage = () => {
     return (
         <div className="Mypage">
-            <MypageContainer />
+            <PageContainer page={"mypage"} />
             <BottomMenu />
         </div>
     );
