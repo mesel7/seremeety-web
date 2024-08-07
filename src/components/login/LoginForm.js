@@ -1,4 +1,4 @@
-import Button from "./Button";
+import Button from "../common/Button";
 import "./LoginForm.css";
 
 const LoginForm = ({ type, value, onChange, placeholder, btnText, onSubmit }) => {

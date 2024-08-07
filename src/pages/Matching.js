@@ -1,10 +1,12 @@
-import BottomMenu from "../components/BottomMenu";
-import PageContainer from "../components/PageContainer";
+import ChatContent from "../components/chat/ChatContent";
+import BottomMenu from "../components/common/BottomMenu";
+import PageHeader from "../components/common/PageHeader";
 
 const Matching = () => {
     return (
         <div className="Matching">
-            <PageContainer page={"matching"} />
+            <PageHeader page={"matching"} />
+            <ChatContent />
             <BottomMenu />
         </div>
     );

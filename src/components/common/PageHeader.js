@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./PageHeader.css"
-import { icons } from "../utils";
+import { icons } from "../../utils";
 
 const PageHeader = ({ page }) => {
     const renderHeaderElements = () => {

@@ -17,3 +17,5 @@ const RequestItem = () => {
         </div>
     );
 };
+
+export default RequestItem;

@@ -1,8 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { menuItem } from "../utils";
 import "./BottomMenu.css";
-import MenuItem from "./MenuItem";
 import { useEffect, useState } from "react";
+import { menuItem } from "../../utils";
+import MenuItem from "./MenuItem";
 
 const BottomMenu = () => {
     const [selectedRoute, setSelectedRoute] = useState("");

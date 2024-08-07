@@ -18,3 +18,10 @@
 .LoginForm input:focus {
     outline: none;
 }
+
+@media (max-width: 420px) {
+    .LoginForm input {
+        padding: 2.4vw;
+        font-size: 3.8vw;
+    }
+}

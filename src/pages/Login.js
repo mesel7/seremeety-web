@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import LoginForm from "../components/LoginForm";
+
 import { auth, setupRecaptchaVerifier } from "../firebase";
 import { signInWithPhoneNumber } from "firebase/auth";
 import seremeetyLogo from "../images/img_seremeety_logo.png";
+import { getUserDataByUid, setNewUserData } from "../utils";
+import LoginForm from "../components/login/LoginForm";
 
 const Login = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
@@ -24,23 +26,30 @@ const Login = () => {
         setVerificationCode(e.target.value);
     };
 
-    const handleSendCode = () => {
-        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-            .then((confirmationResult) => {
-                window.confirmationResult = confirmationResult;
-                console.log("코드 전송");
-            }).catch((error) => {
-                console.log(error);
-            });
+    const handleSendCode = async () => {
+        try {
+            const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            window.confirmationResult = confirmationResult;
+            console.log("code sent");
+        } catch (error) {
+            console.log(error);
+        }
     };
 
-    const handleVerifyCode = () => {
-        window.confirmationResult.confirm(verificationCode)
-            .then(() => {
-                console.log("로그인 성공");
-            }).catch((error) => {
-                console.log(error);
-            });
+    const handleVerifyCode = async () => {
+        try {
+            const result = await window.confirmationResult.confirm(verificationCode);
+            const currentUser = result.user;
+            const userData = await getUserDataByUid(currentUser.uid);
+
+            if (!userData) {
+                await setNewUserData(currentUser);
+                console.log("신규 유저 등록");
+            }
+            console.log("로그인 성공");
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (

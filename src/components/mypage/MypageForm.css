@@ -31,6 +31,11 @@
     background-color: #ececec;
 }
 
+.MypageForm span {
+    font-size: 16px;
+    margin-left: 10px;
+}
+
 .MypageForm input[type="radio"] {
     margin: 0;
 }
@@ -55,7 +60,8 @@
 }
 
 @media (max-width: 420px) {
-    .MypageForm label {
+    .MypageForm label,
+    .MypageForm span {
         font-size: 3.8vw;
     }
 

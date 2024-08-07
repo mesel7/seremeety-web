@@ -1,10 +1,12 @@
-import BottomMenu from "../components/BottomMenu";
-import PageContainer from "../components/PageContainer";
+import ChatContent from "../components/chat/ChatContent";
+import BottomMenu from "../components/common/BottomMenu";
+import PageHeader from "../components/common/PageHeader";
 
 const Chat = () => {
     return (
         <div className="ChatList">
-            <PageContainer page={"chat"} />
+            <PageHeader page={"chat"}/>
+            <ChatContent />
             <BottomMenu />
         </div>
     );
