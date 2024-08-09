@@ -1,9 +1,12 @@
 import "./MatchingContent.css";
+import ProfileCardItem from "./ProfileCardItem";
 
-const MatchingContent = () => {
+const MatchingContent = ({ profileCards }) => {
     return (
         <div className="MatchingContent">
-
+            {profileCards.map((it, idx) => (
+                <ProfileCardItem key={idx} {...it} />
+            ))}
         </div>
     );
 };

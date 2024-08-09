@@ -16,13 +16,17 @@ const Mypage = () => {
         });
     };
 
-    return (
-        <div className="Mypage">
-            <PageHeader page={"mypage"} />
-            <MypageContent userProfile={state} onSave={onSave}/>
-            <BottomMenu />
-        </div>
-    );
+    if (!state || !onUpdate) {
+        return <div>데이터를 불러오는 중입니다</div>;
+    } else {
+        return (
+            <div className="Mypage">
+                <PageHeader page={"mypage"} />
+                <MypageContent userProfile={state} onSave={onSave}/>
+                <BottomMenu />
+            </div>
+        );
+    }
 };
 
 export default Mypage;

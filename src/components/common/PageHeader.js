@@ -1,8 +1,15 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./PageHeader.css"
 import { icons } from "../../utils";
+import { useNavigate } from "react-router-dom";
 
 const PageHeader = ({ page }) => {
+    const navigate = useNavigate();
+
+    const handleSettingClick = () => {
+        navigate("/setting");
+    };
+
     const renderHeaderElements = () => {
         switch (page) {
             case "matching": return <h2>프로필 카드</h2>;
@@ -18,13 +25,14 @@ const PageHeader = ({ page }) => {
                                 <FontAwesomeIcon icon={icons.faMusic} style={{ color: "black" }} />
                                 0
                             </div>
-                            <div className="setting">
+                            <div className="setting" onClick={handleSettingClick}>
                                 <FontAwesomeIcon icon={icons.faGear} style={{ color: "black" }} />
                             </div>
                         </div>
                     </>
                 );
             case "shop": return <h2>상점</h2>;
+            case "setting": return <h2>설정</h2>;
             default: return null;
         }
     };

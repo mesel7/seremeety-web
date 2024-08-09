@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-
 import { auth, setupRecaptchaVerifier } from "../firebase";
 import { signInWithPhoneNumber } from "firebase/auth";
 import seremeetyLogo from "../images/img_seremeety_logo.png";
-import { getUserDataByUid, setNewUserData } from "../utils";
 import LoginForm from "../components/login/LoginForm";
 
 const Login = () => {
@@ -38,14 +36,7 @@ const Login = () => {
 
     const handleVerifyCode = async () => {
         try {
-            const result = await window.confirmationResult.confirm(verificationCode);
-            const currentUser = result.user;
-            const userData = await getUserDataByUid(currentUser.uid);
-
-            if (!userData) {
-                await setNewUserData(currentUser);
-                console.log("신규 유저 등록");
-            }
+            await window.confirmationResult.confirm(verificationCode);
             console.log("로그인 성공");
         } catch (error) {
             console.log(error);

@@ -1,6 +1,6 @@
 import { faEnvelope, faHeart, faMessage, faUser, faMusic, faGear } from "@fortawesome/free-solid-svg-icons";
-import { aggregateFieldEqual, collection, doc, getDoc, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "./firebase";
+import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
+import { auth, db } from "./firebase";
 
 export const menuItem = [
     {
@@ -79,6 +79,29 @@ export const mypageForm = [
     }
 ];
 
+export const settingItem = [
+    {
+        content: "알림 설정",
+        onClick: () => console.log("알림 설정")
+    },
+    {
+        content: "아는 사람 피하기",
+        onClick: () => console.log("아는 사람 피하기")
+    },
+    {
+        content: "이용약관",
+        onClick: () => console.log("이용약관")
+    },
+    {
+        content: "문의하기",
+        onClick: () => console.log("문의하기")
+    },
+    {
+        content: "로그아웃",
+        onClick: () => auth.signOut()
+    }
+];
+
 export const getAgeByBirthDate = (birthdate) => {
     const today = new Date();
     const dateOfBirth = new Date(birthdate);
@@ -127,5 +150,19 @@ export const setNewUserData = async (user) => {
 export const updateUserDataByUid = async (uid, data) => {
     const usersRef = collection(db, "users");
     await updateDoc(doc(usersRef, uid), data);
+};
+
+export const getUserProfiles = async (currentUserData) => {
+    const queryConstraints = [
+        where("profileStatus", "==", 1)
+    ];
+    if (currentUserData["gender"]) {
+        queryConstraints.push(
+            where("gender", "==", currentUserData["gender"] === "male" ? "female" : "male")
+        );
+    }
+
+    const querySnapshot = await getDocs(query(collection(db, "users"), ...queryConstraints));
+    return querySnapshot.docs.map((doc) => doc.data());
 };
 

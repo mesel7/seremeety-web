@@ -1,9 +1,14 @@
 .PageHeader {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 100;
+    border-bottom: 1px solid #ececec;
+    box-shadow: 0 7px 29px 0 #64646433;
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding: 30px;
-    padding-bottom: 0;
+    padding: 20px 30px;
 }
 
 .PageHeader h2 {
@@ -16,8 +21,13 @@
 }
 
 .PageHeader_mypage .my_note {
+    cursor: pointer;
     display: flex;
     gap: 5px;
+}
+
+.PageHeader_mypage .setting {
+    cursor: pointer;
 }
 
 @media (max-width: 420px) {

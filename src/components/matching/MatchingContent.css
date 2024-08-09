@@ -1,0 +1,7 @@
+.MatchingContent {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 30px;
+    padding-bottom: 90px;
+    gap: 20px;
+}

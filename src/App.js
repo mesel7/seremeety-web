@@ -9,25 +9,43 @@ import { auth } from './firebase';
 import Chat from './pages/Chat';
 import Login from './pages/Login';
 import { MypageProvider } from './contexts/MypageContext';
+import { MatchingProvider } from './contexts/MatchingContext';
+import Setting from './pages/Setting';
+import { getUserDataByUid, setNewUserData } from './utils';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [isNewUserRegd, setIsNewUserRegd] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
-      setCurrentUser(currentUser);
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      if (currentUser) {
+        setCurrentUser(currentUser);
+
+        try {
+          const userData = await getUserDataByUid(currentUser.uid);
+          if(!userData) {
+            await setNewUserData(currentUser);
+            console.log("new user regd");
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setIsNewUserRegd(true);
+        }
+      } else {
+        setCurrentUser(null);
+        setIsNewUserRegd(false);
+      }
+
       setIsDataLoaded(true);
     });
 
     return () => unsubscribe();
   }, []);
-  
-  if (!isDataLoaded) {
-    return <div>데이터를 불러오는 중입니다</div>;
-  } else {
-    return (
-      <MypageProvider>
+
+  const appContent = (
       <div className="App">
         <Routes>
           <Route path={"/"} element={currentUser ? <Navigate to={"/matching"} /> : <Login />} />
@@ -36,9 +54,22 @@ function App() {
           <Route path={"/chat"} element={currentUser ? <Chat /> : <Navigate to={"/"} />} />
           <Route path={"/mypage"} element={currentUser ? <Mypage /> : <Navigate to={"/"} />} />
           <Route path={"/shop"} element={currentUser ? <Shop /> : <Navigate to={"/"} />} />
+          <Route path={"/setting"} element={currentUser ? <Setting /> : <Navigate to={"/"} />} />
         </Routes>
       </div>
-      </MypageProvider>
+  );
+  
+  if (!isDataLoaded) {
+    return <div>데이터를 불러오는 중입니다</div>;
+  } else {
+    return (currentUser && isNewUserRegd) ? (
+      <MatchingProvider>
+        <MypageProvider>
+          {appContent}
+        </MypageProvider>
+      </MatchingProvider>
+    ) : (
+      appContent
     );
   }
 }

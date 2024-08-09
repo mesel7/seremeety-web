@@ -1,0 +1,28 @@
+.ProfileCardItem {
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    border: solid 1px #e1e1e1;
+    border-radius: 5px;
+    padding: 10px;
+    gap: 10px;
+}
+
+.ProfileCardItem img {
+    width: 100%;
+    border: 1px solid #e1e1e1;
+    border-radius: 5px;
+}
+
+.ProfileCardItem .content_section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+@media (max-width: 420px) {
+    .ProfileCardItem .content_section {
+        font-size: 3.8vw;
+    }
+}

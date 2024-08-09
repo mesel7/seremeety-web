@@ -1,12 +1,8 @@
-.MypageContent {
+.SettingContent {
     display: flex;
     flex-direction: column;
     padding: 30px;
     padding-bottom: 90px;
     gap: 20px;
-}
-
-.MypageContent img {
-    border: 1px solid #ececec;
-    border-radius: 5px;
+    min-height: 100vh;
 }
