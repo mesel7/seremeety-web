@@ -1,5 +1,5 @@
 import { faEnvelope, faHeart, faMessage, faUser, faMusic, faGear } from "@fortawesome/free-solid-svg-icons";
-import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { auth, db } from "./firebase";
 
 export const menuItem = [
@@ -79,6 +79,37 @@ export const mypageForm = [
     }
 ];
 
+export const profileInfo = [
+    {
+        field: "닉네임",
+        id: "nickname"
+    },
+    {
+        field: "나이",
+        id: "age"
+    },
+    {
+        field: "성별",
+        id: "gender"
+    },
+    {
+        field: "MBTI",
+        id: "mbti"
+    },
+    {
+        field: "학교",
+        id: "university"
+    },
+    {
+        field: "지역",
+        id: "place"
+    },
+    {
+        field: "소개 한 마디",
+        id: "introduce"
+    }
+];
+
 export const settingItem = [
     {
         content: "알림 설정",
@@ -98,9 +129,45 @@ export const settingItem = [
     },
     {
         content: "로그아웃",
-        onClick: () => auth.signOut()
+        onClick: () => {
+            auth.signOut();
+            window.location.reload();
+        }
     }
 ];
+
+export const toLocalePhoneNumber = (input) => {
+    const cleanText = input.replace(/-/g, "");
+    const MAX_LENGTH = 11;
+    const FIRST_HYPHEN_INDEX = 3;
+    const SECOND_HYPHEN_INDEX = 7;
+
+    let localePhoneNumber = cleanText.slice(0, MAX_LENGTH);
+
+    if (localePhoneNumber.length > SECOND_HYPHEN_INDEX) {
+        localePhoneNumber = localePhoneNumber.slice(0, SECOND_HYPHEN_INDEX) +
+        "-" +
+        localePhoneNumber.slice(SECOND_HYPHEN_INDEX);
+    }
+    if (localePhoneNumber.length > FIRST_HYPHEN_INDEX) {
+        localePhoneNumber = localePhoneNumber.slice(0, FIRST_HYPHEN_INDEX) +
+        "-" +
+        localePhoneNumber.slice(FIRST_HYPHEN_INDEX);
+    }
+
+    return localePhoneNumber;
+};
+
+export const toIntlPhoneNumber = (input) => {
+    let intlPhoneNumber = input.replace(/-/g, "");
+    if (intlPhoneNumber.length > 0 && intlPhoneNumber[0] === "0") {
+        intlPhoneNumber = "+82" + intlPhoneNumber.substring(1);
+    } else {
+        intlPhoneNumber = "+82" + intlPhoneNumber;
+    }
+
+    return intlPhoneNumber;
+}
 
 export const getAgeByBirthDate = (birthdate) => {
     const today = new Date();
@@ -116,6 +183,30 @@ export const getAgeByBirthDate = (birthdate) => {
     return age;
 };
 
+export const formatTimeStampForList = (timestamp) => {
+    let date;
+    if (timestamp instanceof Date) {
+        date = timestamp;
+    } else if (timestamp && timestamp.seconds){
+        date = new Date(timestamp.seconds * 1000);
+    } else {
+        console.log("invalid timestamp");
+        return "Invalid Date";
+    }
+
+    const now = new Date();
+    const options = {
+        month: "long",
+        day: "numeric"
+    };
+
+    if (date.getFullYear() !== now.getFullYear()) {
+        options.year = "numeric";
+    }
+
+    return date.toLocaleString("ko-KR", options);
+}
+
 export const getUserDataByUid = async (uid) => {
     const docRef = doc(db, "users", uid);
     const docSnap = await getDoc(docRef);
@@ -123,7 +214,7 @@ export const getUserDataByUid = async (uid) => {
     if (docSnap.exists()) {
         return docSnap.data();
     } else {
-        console.log("No such user document");
+        console.log("user data not found");
         return null;
     }
 };
@@ -163,6 +254,59 @@ export const getUserProfiles = async (currentUserData) => {
     }
 
     const querySnapshot = await getDocs(query(collection(db, "users"), ...queryConstraints));
-    return querySnapshot.docs.map((doc) => doc.data());
+    const userProfiles = querySnapshot.docs.map((doc) => (
+        {
+            ...doc.data(),
+            uid: doc.id
+        }
+    ));
+    return userProfiles;
+};
+
+export const getRequests = async (uid) => {
+    const [receivedSnapshot, sentSnapshot] = await Promise.all([
+        getDocs(query(collection(db, "requests"), where("to", "==", uid))),
+        getDocs(query(collection(db, "requests"), where("from", "==", uid)))
+    ]);
+
+    const receivedRequests = receivedSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+    const sentRequests = sentSnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+
+    return { receivedRequests, sentRequests };
+};
+
+export const isRequestExist = async (currentUserUid, otherUserUid) => {
+    const receivedQueryConstraints = [
+        where("to", "==", currentUserUid),
+        where("from", "==", otherUserUid)
+    ];
+
+    const receivedSnapshot = await getDocs(query(collection(db, "requests"), ...receivedQueryConstraints));
+    if (!receivedSnapshot.empty) {
+        return true;
+    }
+
+    const sentQueryConstraints = [
+        where("from", "==", currentUserUid),
+        where("to", "==", otherUserUid)
+    ];
+
+    const sentSnapshot = await getDocs(query(collection(db, "requests"), ...sentQueryConstraints));
+    if (!sentSnapshot.empty) {
+        return true;
+    }
+
+    return false;
+};
+
+export const createRequest = async (newRequest) => {
+    const requestsRef = collection(db, "requests");
+    const docRef = await addDoc(requestsRef, newRequest);
+    return docRef.id;
+};
+
+export const updateRequestById = async (requestId, data) => {
+    const requestsRef = collection(db, "requests");
+    await updateDoc(doc(requestsRef, requestId), data);
 };
 

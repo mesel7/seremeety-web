@@ -1,0 +1,51 @@
+.RequestItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.RequestItem .img_section {
+    cursor: pointer;
+    width: 20%;
+}
+
+.RequestItem .img_section img {
+    width: 100%
+}
+
+.RequestItem .content_section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.RequestItem .content_section .info_wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.RequestItem .content_section .info_wrapper .nickname_wrapper {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.RequestItem .content_section .info_wrapper .created_at_wrapper {
+    font-size: 12px;
+    color: gray;
+}
+
+.RequestItem .content_section .status_wrapper .Button {
+    width: 100%;
+}
+
+@media (max-width: 420px) {
+    .RequestItem .content_section .info_wrapper .nickname_wrapper {
+        font-size: 3.8vw;
+    }
+
+    .RequestItem .content_section .info_wrapper .created_at_wrapper {
+        font-size: 2.8vw;
+    }
+}

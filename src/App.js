@@ -12,6 +12,8 @@ import { MypageProvider } from './contexts/MypageContext';
 import { MatchingProvider } from './contexts/MatchingContext';
 import Setting from './pages/Setting';
 import { getUserDataByUid, setNewUserData } from './utils';
+import Profile from './pages/Profile';
+import { RequestProvider } from './contexts/RequestContext';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -50,6 +52,7 @@ function App() {
         <Routes>
           <Route path={"/"} element={currentUser ? <Navigate to={"/matching"} /> : <Login />} />
           <Route path={"/matching"} element={currentUser ? <Matching /> : <Navigate to={"/"} />} />
+          <Route path={"/profile/:uid"} element={currentUser ? <Profile /> : <Navigate to={"/"} />} />
           <Route path={"/request"} element={currentUser ? <Request /> : <Navigate to={"/"} />} />
           <Route path={"/chat"} element={currentUser ? <Chat /> : <Navigate to={"/"} />} />
           <Route path={"/mypage"} element={currentUser ? <Mypage /> : <Navigate to={"/"} />} />
@@ -64,9 +67,11 @@ function App() {
   } else {
     return (currentUser && isNewUserRegd) ? (
       <MatchingProvider>
-        <MypageProvider>
-          {appContent}
-        </MypageProvider>
+        <RequestProvider>
+          <MypageProvider>
+            {appContent}
+          </MypageProvider>
+        </RequestProvider>
       </MatchingProvider>
     ) : (
       appContent

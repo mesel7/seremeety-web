@@ -24,11 +24,12 @@
 .MypageForm select,
 .MypageForm textarea {
     font-family: 'S-CoreDream-3Light';
+    flex: 1;
     font-size: 16px;
     padding: 5px 10px;
     border: none;
     border-radius: 5px;
-    background-color: #ececec;
+    background-color: #dfe9f5;
 }
 
 .MypageForm span {

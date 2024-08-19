@@ -1,0 +1,7 @@
+.RequestContent {
+    display: flex;
+    flex-direction: column;
+    padding: 0 30px;
+    padding-bottom: 90px;
+    gap: 20px;
+}

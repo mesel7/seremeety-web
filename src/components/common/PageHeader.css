@@ -1,10 +1,8 @@
 .PageHeader {
     position: sticky;
     top: 0;
-    background-color: white;
+    background-color: #dde1ea;
     z-index: 100;
-    border-bottom: 1px solid #ececec;
-    box-shadow: 0 7px 29px 0 #64646433;
     display: flex;
     align-items: baseline;
     justify-content: space-between;

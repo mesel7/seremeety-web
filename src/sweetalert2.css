@@ -1,0 +1,77 @@
+.swal2-popup {
+    width: 100%;
+    max-width: 400px;
+}
+
+.swal2-icon {
+    margin: 20px auto 0;
+}
+
+.swal2-icon-content {
+    font-size: 50px !important;
+}
+
+#swal2-title {
+    font-size: 24px;
+}
+
+#swal2-html-container {
+    font-size: 16px;
+}
+
+.swal2-actions {
+    margin: 10px auto 0;
+    gap: 5px;
+}
+
+.swal2-confirm {
+    background-color: #92a8d1;
+    font-family: 'S-CoreDream-3Light';
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 8px 12px;
+}
+
+.swal2-cancel {
+    background-color: white;
+    color: #92a8d1;
+    border: 1px solid #92a8d1;
+    font-family: 'S-CoreDream-3Light';
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 2px;
+    padding: 8px 12px;
+}
+
+@media(max-width: 420px) {
+    .swal2-icon {
+        margin: 4.8vw auto 0;
+    }
+    
+    .swal2-icon-content {
+        font-size: 12vw !important;
+    }
+    
+    #swal2-title {
+        font-size: 5.7vw;
+    }
+    
+    #swal2-html-container {
+        font-size: 3.8vw;
+    }
+    
+    .swal2-actions {
+        margin: 2.4vw auto 0;
+    }
+    
+    .swal2-confirm {
+        font-size: 3.8vw;
+        padding: 1.9vw 2.9vw;
+    }
+    
+    .swal2-cancel {
+        font-size: 3.8vw;
+        padding: 1.9vw 2.9vw;
+    }
+}

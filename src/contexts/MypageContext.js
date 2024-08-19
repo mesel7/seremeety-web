@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer } from "react";
 import { getUserDataByUid, updateUserDataByUid } from "../utils";
 import { auth } from "../firebase";
+import Swal from "sweetalert2";
 
 export const MypageStateContext = React.createContext();
 export const MypageDispatchContext = React.createContext();
@@ -37,8 +38,21 @@ export const MypageProvider = ({ children }) => {
                 type: "UPDATE",
                 data: { ...newData }
             });
+
+            Swal.fire({
+                title: "프로필 저장",
+                text: "성공적으로 저장되었습니다!",
+                icon: "success",
+                confirmButtonText: "확인"
+            });
         } catch (error) {
             console.log(error);
+            Swal.fire({
+                title: "프로필 저장 실패",
+                text: "오류가 발생했습니다",
+                icon: "error",
+                confirmButtonText: "확인"
+            });
         }
     };
 

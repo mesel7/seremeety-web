@@ -2,8 +2,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./PageHeader.css"
 import { icons } from "../../utils";
 import { useNavigate } from "react-router-dom";
+import Button from "./Button";
 
-const PageHeader = ({ page }) => {
+const PageHeader = ({ page, setIsReceived }) => {
     const navigate = useNavigate();
 
     const handleSettingClick = () => {
@@ -13,7 +14,17 @@ const PageHeader = ({ page }) => {
     const renderHeaderElements = () => {
         switch (page) {
             case "matching": return <h2>프로필 카드</h2>;
-            case "request": return <h2>요청</h2>;
+            case "profile": return <h2>상세 프로필</h2>;
+            case "request":
+                return (
+                    <>
+                        <h2>요청</h2>
+                        <div className="header_menu">
+                            <Button text="받은 요청" onClick={() => setIsReceived(true)} />
+                            <Button text="보낸 요청" onClick={() => setIsReceived(false)} />
+                        </div>
+                    </>
+                );
             case "chat": return <h2>채팅</h2>;
             case "mypage":
                 return (
