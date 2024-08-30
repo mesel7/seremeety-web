@@ -9,17 +9,13 @@ const Request = () => {
     const [isReceived, setIsReceived] = useState(true);
     console.log(state);
 
-    if (!state) {
-        return <div>데이터를 불러오는 중입니다</div>;
-    } else {
-        return (
-            <div className="Request">
-                <PageHeader page={"request"} setIsReceived={setIsReceived} />
-                <RequestContent requests={state} isReceived={isReceived} />
-                <BottomMenu />
-            </div>
-        );
-    }
+    return (
+        <div className="Request">
+            <PageHeader page={"request"} isReceived={isReceived} setIsReceived={setIsReceived} />
+            <RequestContent requests={state} isReceived={isReceived} />
+            <BottomMenu />
+        </div>
+    );
 };
 
 export default Request;

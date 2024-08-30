@@ -4,8 +4,12 @@ import { isRequestExist, profileInfo } from "../../utils";
 import Button from "../common/Button";
 import "./ProfileContent.css";
 import ProfileInfo from "./ProfileInfo";
+import { useState } from "react";
+import ImageLoading from "../common/ImageLoading";
 
 const ProfileContent = ({ userProfile, uid, isViewOnly, onCreateRequest }) => {
+    const [isImgLoaded, setIsImgLoaded] = useState(false);
+
     const handleRequestClick = async () => {
         const currentUserUid = auth.currentUser.uid;
         const result = await Swal.fire({
@@ -45,7 +49,15 @@ const ProfileContent = ({ userProfile, uid, isViewOnly, onCreateRequest }) => {
 
     return (
         <div className="ProfileContent">
-            <img alt="PROFILE" src={userProfile["profilePictureUrl"] || "/logo192.png"} />
+            <div className="img_section">
+                {!isImgLoaded && <ImageLoading />}
+                <img
+                    alt="PROFILE"
+                    src={userProfile["profilePictureUrl"]}
+                    onLoad={() => setIsImgLoaded(true)}
+                    style={{ display: !isImgLoaded ? "none" : "block" }}
+                />
+            </div>
             {profileInfo.map((it, idx) => <ProfileInfo key={idx} {...it} data={userProfile[it.id]} />)}
             {!isViewOnly && <Button text={"매칭 요청"} onClick={handleRequestClick} />}
         </div>

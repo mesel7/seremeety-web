@@ -1,0 +1,7 @@
+.ChatContent {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    padding-bottom: 120px;
+    gap: 20px;
+}

@@ -4,6 +4,8 @@ import ProfileContent from "../components/profile/ProfileContent";
 import { useContext, useEffect, useState } from "react";
 import { getUserDataByUid } from "../utils";
 import { RequestDispatchContext } from "../contexts/RequestContext";
+import Swal from "sweetalert2";
+import Loading from "../components/common/Loading";
 
 const Profile = () => {
     const [userProfile, setUserProfile] = useState({});
@@ -14,14 +16,24 @@ const Profile = () => {
     const isViewOnly = location.state?.isViewOnly || false;
 
     useEffect(() => {
-        const fetchUserProfile = async() => {
+        const fetchUserProfile = async () => {
             try {
                 const userData = await getUserDataByUid(uid);
                 if (userData) {
                     setUserProfile(userData);   
                 } else {
-                    alert("존재하지 않는 프로필입니다");
-                    navigate(-1, { replace: true });
+                    Swal.fire({
+                        title: "오류",
+                        text: "존재하지 않는 프로필입니다",
+                        icon: "error",
+                        confirmButtonText: "확인",
+                        customClass: {
+                            confirmButton: 'no-focus-outline'
+                        },
+                        willClose: () => {
+                            navigate(-1, { replace: true });
+                        }
+                    });
                 }
             } catch (error) {
                 console.log(error);
@@ -31,8 +43,8 @@ const Profile = () => {
         fetchUserProfile();
     }, [uid]);
 
-    if (!userProfile || Object.keys(userProfile).length === 0) {
-        return <div>데이터를 불러오는 중입니다</div>;
+    if (Object.keys(userProfile).length <= 0) {
+        return <Loading />
     } else {
         return (
             <div className="Profile">

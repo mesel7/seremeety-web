@@ -3,13 +3,14 @@ import BottomMenu from "../components/common/BottomMenu";
 import PageHeader from "../components/common/PageHeader";
 import { MatchingStateContext } from "../contexts/MatchingContext";
 import MatchingContent from "../components/matching/MatchingContent";
+import Loading from "../components/common/Loading";
 
 const Matching = () => {
     const state = useContext(MatchingStateContext);
     console.log(state);
 
     if (!state) {
-        return <div>데이터를 불러오는 중입니다</div>;
+        return <Loading />;
     } else {
         return (
             <div className="Matching">

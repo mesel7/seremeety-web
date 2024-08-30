@@ -1,0 +1,71 @@
+.MyProfilePreview {
+    display: flex;
+    gap: 20px;
+    padding: 30px;
+}
+
+.MyProfilePreview .img_nickname_section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+    gap: 10px;
+}
+
+.MyProfilePreview .img_nickname_section .img_wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.MyProfilePreview .img_nickname_section .img_wrapper img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.MyProfilePreview .img_nickname_section .nickname_wrapper {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.MyProfilePreview .content_section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.MyProfilePreview .content_section .info_section {
+    flex: 1 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.MyProfilePreview .content_section .info_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.MyProfilePreview .content_section button {
+    padding: 5px;
+    font-size: 14px;
+}
+
+@media (max-width: 420px) {
+    .MyProfilePreview .img_nickname_section .nickname_wrapper {
+        font-size: 3.8vw;
+    }
+
+    .MyProfilePreview .content_section .info_wrapper {
+        font-size: 3.3vw;
+    }
+
+    .MyProfilePreview .content_section button {
+        padding: 1.2vw;
+        font-size: 3.3vw;
+    }
+}
+

@@ -1,14 +1,17 @@
 import { useNavigate } from "react-router-dom";
-import { formatTimeStampForList } from "../../utils";
+import { formatTimeStampForList, icons } from "../../utils";
 import Button from "../common/Button";
 import "./RequestItem.css";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ImageLoading from "../common/ImageLoading";
 
-const RequestItem = ({ request, onUpdateRequest }) => {
+const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
     const [requestStatus, setRequestStatus] = useState(request.status);
+    const [isImgLoaded, setIsImgLoaded] = useState(false);
     const navigate = useNavigate();
-
+    
     const handleProfilePictureClick = () => {
         const otherUserUid = request.isReceived ? request.from : request.to;
         navigate(`/profile/${otherUserUid}`, { state: { isViewOnly: true }});
@@ -22,6 +25,10 @@ const RequestItem = ({ request, onUpdateRequest }) => {
             status: newStatus,
             to: request.to
         });
+
+        if (newStatus === "accepted") {
+            await onCreateChatRoom(request.to, request.from);
+        }
 
         await Swal.fire({
             title: { accepted: "매칭 수락", rejected: "요청 거절" }[newStatus],
@@ -64,11 +71,32 @@ const RequestItem = ({ request, onUpdateRequest }) => {
     };
 
     const statusText = { pending: "매칭 대기", accepted: "매칭 수락", rejected: "매칭 실패" }[requestStatus];
+    const StatusIcon = {
+        pending: {
+            icon: icons.faHourglassHalf,
+            color: "#3fc3ee"
+        },
+        accepted: {
+            icon: icons.faCircleCheck,
+            color: "#a5dc86"
+        },
+        rejected: {
+            icon: icons.faCircleXmark,
+            color: "#f27474"
+        }
+    }[requestStatus];
+    const buttonType = { pending: "light", accepted: "", rejected: "negative"}[requestStatus];
 
     return (
         <div className="RequestItem">
             <div className="img_section" onClick={handleProfilePictureClick}>
-                <img alt={"PROFILE"} src={request.profilePictureUrl || "/logo192.png"} />
+                {!isImgLoaded && <ImageLoading />}
+                <img
+                    alt={"PROFILE"}
+                    src={request.profilePictureUrl}
+                    onLoad={() => setIsImgLoaded(true)}
+                    style={{ display: !isImgLoaded ? "none" : "block" }}
+                />
             </div>
             <div className="content_section">
                 <div className="info_wrapper">
@@ -76,7 +104,14 @@ const RequestItem = ({ request, onUpdateRequest }) => {
                     <div className="created_at_wrapper">{formatTimeStampForList(request.createdAt)}</div>
                 </div>
                 <div className="status_wrapper">
-                    <Button text={statusText} onClick={handleRequestStatusClick} />
+                    <div className="icon_wrapper">
+                        <FontAwesomeIcon icon={StatusIcon.icon} size={"2x"} style={{ color: "gray" }} />
+                    </div>
+                    <Button
+                        text={statusText}
+                        type={buttonType}
+                        onClick={handleRequestStatusClick}
+                    />
                 </div>
             </div>
         </div>

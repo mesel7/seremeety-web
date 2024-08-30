@@ -1,7 +1,8 @@
-import React, { useEffect, useReducer } from "react";
-import { getUserDataByUid, updateUserDataByUid } from "../utils";
+import React, { useEffect, useReducer, useState } from "react";
+import { dataURLToFile, getUserDataByUid, updateUserDataByUid, uploadImageToStorage } from "../utils";
 import { auth } from "../firebase";
 import Swal from "sweetalert2";
+import Loading from "../components/common/Loading";
 
 export const MypageStateContext = React.createContext();
 export const MypageDispatchContext = React.createContext();
@@ -16,6 +17,7 @@ const reducer = (state, action) => {
 
 export const MypageProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, {});
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const fetchUserProfile = async () => {
@@ -32,7 +34,14 @@ export const MypageProvider = ({ children }) => {
     }, []);
 
     const onUpdate = async (newData) => {
+        setIsLoading(true);
         try {
+            if (newData.profilePictureUrl !== state.profilePictureUrl) {
+                const file = dataURLToFile(newData.profilePictureUrl, "profile_picture.jpg");
+                const uploadedUrl = await uploadImageToStorage(file, auth.currentUser.uid);
+                newData.profilePictureUrl = uploadedUrl;
+            }
+
             await updateUserDataByUid(auth.currentUser.uid, newData);
             dispatch({
                 type: "UPDATE",
@@ -53,14 +62,19 @@ export const MypageProvider = ({ children }) => {
                 icon: "error",
                 confirmButtonText: "확인"
             });
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <MypageStateContext.Provider value={state}>
-            <MypageDispatchContext.Provider value={{ onUpdate }}>
-                {children}
-            </MypageDispatchContext.Provider>
-        </MypageStateContext.Provider>
+        <>
+            {isLoading && <Loading />}
+            <MypageStateContext.Provider value={state}>
+                <MypageDispatchContext.Provider value={{ onUpdate }}>
+                    {children}
+                </MypageDispatchContext.Provider>
+            </MypageStateContext.Provider>
+        </>
     );
 };

@@ -1,16 +1,43 @@
 .PageHeader {
     position: sticky;
     top: 0;
-    background-color: #dde1ea;
+    background-color: white;
     z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 30px;
+    border-bottom: 1px solid #ececec;
+}
+
+.PageHeader .logo_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #92a8d1;
+    letter-spacing: 2px;
+}
+
+.PageHeader .logo_wrapper img {
+    width: 25%;
+}
+
+.PageHeader .content_wrapper {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding: 20px 30px;
+}
+
+.PageHeader_myProfile .content_wrapper,
+.PageHeader_request .content_wrapper {
+    align-items: center;
 }
 
 .PageHeader h2 {
     margin: 0;
+    letter-spacing: 2px;
 }
 
 .PageHeader .header_menu {
@@ -18,10 +45,19 @@
     gap: 20px;
 }
 
+.PageHeader_request .header_menu {
+    gap: 10px;
+}
+
+.PageHeader .header_menu Button {
+    padding: 4px 10px;
+    font-size: 14px;
+}
+
 .PageHeader_mypage .my_note {
     cursor: pointer;
     display: flex;
-    gap: 5px;
+    gap: 10px;
 }
 
 .PageHeader_mypage .setting {
@@ -29,11 +65,20 @@
 }
 
 @media (max-width: 420px) {
+    .PageHeader .logo_wrapper {
+        font-size: 3.3vw;
+    }
+
     .PageHeader h2 {
         font-size: 5.7vw;
     }
 
     .PageHeader .header_menu {
         font-size: 3.75vw;
+    }
+
+    .PageHeader .header_menu Button {
+        padding: 0.9vw 2.4vw;
+        font-size: 3.3vw;
     }
 }

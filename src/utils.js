@@ -1,37 +1,52 @@
-import { faEnvelope, faHeart, faMessage, faUser, faMusic, faGear } from "@fortawesome/free-solid-svg-icons";
-import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
-import { auth, db } from "./firebase";
+import { faHeart as faHeartSolid, faEnvelope as faEnvelopeSolid, faComment as faCommentSolid, faUser as faUserSolid, faMusic, faGear, faPaperPlane, faAngleLeft, faCakeCandles, faLocationArrow } from "@fortawesome/free-solid-svg-icons";
+import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
+import { auth, db, storage } from "./firebase";
+import { faHeart as faHeartRegular, faEnvelope as faEnvelopeRegular, faComment as faCommentRegular, faUser as faUserRegular, faCircleCheck, faCircleXmark, faHourglassHalf } from "@fortawesome/free-regular-svg-icons";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import imageCompression from "browser-image-compression";
 
 export const menuItem = [
     {
-        icon: faHeart,
-        color: "white",
-        selectedColor: "#ececec",
+        icon: faHeartRegular,
+        color: "gray",
+        selectedIcon: faHeartSolid,
+        selectedColor: "#92a8d1",
         dataRoute: "/matching"
     },
     {
-        icon: faEnvelope,
-        color: "white",
-        selectedColor: "#ececec",
+        icon: faEnvelopeRegular,
+        color: "gray",
+        selectedIcon: faEnvelopeSolid,
+        selectedColor: "#92a8d1",
         dataRoute: "/request"
     },
     {
-        icon: faMessage,
-        color: "white",
-        selectedColor: "#ececec",
+        icon: faCommentRegular,
+        color: "gray",
+        selectedIcon: faCommentSolid,
+        selectedColor: "#92a8d1",
         dataRoute: "/chat"
     },
     {
-        icon: faUser,
-        color: "white",
-        selectedColor: "ececec",
+        icon: faUserRegular,
+        color: "gray",
+        selectedIcon: faUserSolid,
+        selectedColor: "#92a8d1",
         dataRoute: "/mypage"
     }
 ];
 
 export const icons = {
     faMusic,
-    faGear
+    faGear,
+    faPaperPlane,
+    faHourglassHalf,
+    faCircleCheck,
+    faCircleXmark,
+    faAngleLeft,
+    faCakeCandles,
+    faLocationArrow,
+    faHeartSolid
 };
 
 export const mypageForm = [
@@ -191,21 +206,65 @@ export const formatTimeStampForList = (timestamp) => {
         date = new Date(timestamp.seconds * 1000);
     } else {
         console.log("invalid timestamp");
-        return "Invalid Date";
+        return " ";
     }
 
     const now = new Date();
-    const options = {
-        month: "long",
-        day: "numeric"
-    };
+    const isSameYear = date.getFullYear() === now.getFullYear();
+    const isSameDay = date.getMonth() === now.getMonth() && date.getDate() === now.getDate();
+    const isYesterday = date.getMonth() === now.getMonth() && now.getDate() - date.getDate() === 1;
 
-    if (date.getFullYear() !== now.getFullYear()) {
-        options.year = "numeric";
+    if (!isSameYear) {
+        return date.toLocaleString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
     }
 
-    return date.toLocaleString("ko-KR", options);
+    if (isSameDay) {
+        return date.toLocaleString("ko-KR", { hour: "numeric", minute: "numeric", hour12: true });
+    } else if (isYesterday) {
+        return "어제";
+    } else {
+        return date.toLocaleString("ko-KR", { month: "long", day: "numeric" });
+    }
 }
+
+export const formatTimeStampForMessage = (timestamp) => {
+    let date;
+    if (timestamp instanceof Date) {
+        date = timestamp;
+    } else if (timestamp && timestamp.seconds) {
+        date = new Date(timestamp.seconds * 1000);
+    } else {
+        console.log("invalid timestamp");
+        return " ";
+    }
+
+    const now = new Date();
+    const isSameYear = date.getFullYear() === now.getFullYear();
+    const isSameDay = date.toDateString() === now.toDateString();
+    const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString();
+
+    if (isSameDay) {
+        return date.toLocaleString("ko-KR", { hour: "numeric", minute: "numeric", hour12: true });
+    } 
+
+    const timePart = date.toLocaleString("ko-KR", { hour: "numeric", minute: "numeric", hour12: true });
+
+    if (isYesterday) {
+        return `어제 ${timePart}`;
+    } 
+    
+    const datePart = date.toLocaleString("ko-KR", {
+        month: "long",
+        day: "numeric",
+    });
+
+    if (!isSameYear) {
+        const yearPart = `${String(date.getFullYear()).slice(2)}년`;
+        return `${yearPart} ${datePart} ${timePart}`;
+    }
+
+    return `${datePart} ${timePart}`;
+};
 
 export const getUserDataByUid = async (uid) => {
     const docRef = doc(db, "users", uid);
@@ -237,6 +296,45 @@ export const setNewUserData = async (user) => {
         university: 0
     });
 }
+
+export const compressImage = async (file) => {
+    return await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true
+    });
+};
+
+export const dataURLToFile = (dataURL, filename) => {
+    const [header, data] = dataURL.split(',');
+    const mime = header.match(/:(.*?);/)[1];
+    const binary = atob(data);
+    const array = [];
+    for (let i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+    }
+    return new File([new Uint8Array(array)], filename, { type: mime });
+};
+
+export const uploadImageToStorage = (file, uid) => {
+    return new Promise((resolve, reject) => {
+        const storageRef = ref(storage, `/profile_pictures/${uid}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+            "state_changed",
+            null,
+            (error) => reject(error),
+            async () => {
+                try {
+                    resolve(await getDownloadURL(uploadTask.snapshot.ref));
+                } catch (error) {
+                    reject(error);
+                }
+            }
+        );
+    });
+};
 
 export const updateUserDataByUid = async (uid, data) => {
     const usersRef = collection(db, "users");
@@ -310,3 +408,72 @@ export const updateRequestById = async (requestId, data) => {
     await updateDoc(doc(requestsRef, requestId), data);
 };
 
+export const getChatRooms = async (uid) => {
+    const querySnapshot = await getDocs(query(collection(db, "chat_rooms"), where("users", "array-contains", uid)));
+    const chatRooms = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return chatRooms;
+};
+
+export const subscribeToChatRooms = (dispatch) => {
+    console.log("subscribe to chat rooms");
+    const chatRoomRef = collection(db, "chat_rooms");
+    const q = query(
+        chatRoomRef,
+        where("users", "array-contains", auth.currentUser.uid),
+        orderBy("lastMessage.sentAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const chatRooms = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        dispatch({
+            type: "INIT",
+            data: chatRooms
+        });
+    });
+
+    return unsubscribe;
+};
+
+export const createChatRoom = async (newChatRoom) => {
+    const chatRoomsRef = collection(db, "chat_rooms");
+    const docRef = await addDoc(chatRoomsRef, newChatRoom);
+    return docRef.id;
+};
+
+export const getChatRoomById = async (chatRoomId) => {
+    const docRef = doc(db, "chat_rooms", chatRoomId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return docSnap.data();
+    } else {
+        console.log("chat room not found");
+        return null;
+    }
+}
+
+export const getChatRoomMessages = async (chatRoomId) => {
+    const messagesRef = collection(db, "chat_rooms", chatRoomId, "messages");
+    const querySnapshot = await getDocs(messagesRef);
+    const messages = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    return messages;
+};
+
+export const subscribeToChatRoomMessages = (chatRoomId, setChatRoomMessages) => {
+    console.log("subscribe to chat room messages");
+    const messagesRef = collection(db, "chat_rooms", chatRoomId, "messages");
+    
+    const unsubscribe = onSnapshot(query(messagesRef, orderBy("sentAt", "asc")), (snapshot) => {
+        const messages = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setChatRoomMessages(messages);
+    });
+
+    return unsubscribe;
+}
+
+export const createMessage = async (chatRoomId, newMessageData) => {
+    await addDoc(collection(db, "chat_rooms", chatRoomId, "messages"), newMessageData);
+
+    const chatRoomRef = doc(db, "chat_rooms", chatRoomId);
+    await updateDoc(chatRoomRef, { lastMessage: { text: newMessageData.text, sentAt: newMessageData.sentAt }});
+};

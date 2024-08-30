@@ -2,15 +2,19 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ececec;
 }
 
 .RequestItem .img_section {
     cursor: pointer;
     width: 20%;
+    aspect-ratio: 1 / 1;
 }
 
 .RequestItem .img_section img {
-    width: 100%
+    width: 100%;
+    border-radius: 5px;
 }
 
 .RequestItem .content_section {
@@ -36,8 +40,20 @@
     color: gray;
 }
 
+.RequestItem .content_section .status_wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px
+}
+
+.RequestItem .content_section .status_wrapper .icon_wrapper {
+    display: flex;
+    width: 15%;
+    justify-content: center;
+}
+
 .RequestItem .content_section .status_wrapper .Button {
-    width: 100%;
+    flex: 1;
 }
 
 @media (max-width: 420px) {
@@ -47,5 +63,9 @@
 
     .RequestItem .content_section .info_wrapper .created_at_wrapper {
         font-size: 2.8vw;
+    }
+
+    .RequestItem .content_section .status_wrapper .icon_wrapper {
+        font-size: 3.75vw;
     }
 }

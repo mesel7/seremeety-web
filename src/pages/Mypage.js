@@ -1,28 +1,23 @@
 import { useContext } from "react";
 import PageHeader from "../components/common/PageHeader";
-import MypageContent from "../components/mypage/MypageContent";
 import BottomMenu from "../components/common/BottomMenu";
-import { MypageDispatchContext, MypageStateContext } from "../contexts/MypageContext";
+import { MypageStateContext } from "../contexts/MypageContext";
+import SettingContent from "../components/setting/SettingContent";
+import MyProfilePreview from "../components/mypage/MyProfilePreview";
+import Loading from "../components/common/Loading";
 
 const Mypage = () => {
     const state = useContext(MypageStateContext);
     console.log(state);
-    const { onUpdate } = useContext(MypageDispatchContext);
 
-    const onSave = (formData) => {
-        onUpdate({
-            ...formData,
-            profileStatus: 1
-        });
-    };
-
-    if (!state || !onUpdate) {
-        return <div>데이터를 불러오는 중입니다</div>;
+    if (Object.keys(state).length <= 0) {
+        return <Loading />;
     } else {
         return (
             <div className="Mypage">
                 <PageHeader page={"mypage"} />
-                <MypageContent userProfile={state} onSave={onSave}/>
+                <MyProfilePreview userProfile={state} />
+                <SettingContent />
                 <BottomMenu />
             </div>
         );

@@ -5,7 +5,8 @@
     max-width: 420px;
     z-index: 100;
     display: flex;
-    background-color: #92a8d1;
+    background-color: white;
+    border-top: 1px solid #ececec;
     justify-content: center;
     padding: 10px 0;
     gap: 65px;

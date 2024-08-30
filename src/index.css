@@ -25,6 +25,6 @@ body {
   min-height: 100vh;
   min-height: 100svh;
   height: 100%;
-  background-color: #dde1ea;
+  background-color: white;
   box-shadow: rgba(100, 100, 100, 0.2) 0px 7px 29px 0px;
 }

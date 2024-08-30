@@ -1,0 +1,42 @@
+.ChatRoomInput {
+    position: fixed;
+    bottom: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 420px;
+    z-index: 100;
+    border-top: 1px solid #ececec;
+    background-color: white;
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+}
+
+.ChatRoomInput input {
+    flex: 1;
+    font-family: 'S-CoreDream-3Light';
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f6f6f6;
+    font-size: 16px;
+}
+
+.ChatRoomInput input:focus {
+    outline: none;
+}
+
+.ChatRoomInput .send_icon_wrapper {
+    cursor: pointer;
+}
+
+@media (max-width: 420px) {
+    .ChatRoomInput input {
+        padding: 2.4vw;
+        font-size: 3.8vw;
+    }
+
+    .ChatRoomInput .send_icon_wrapper {
+        font-size: 3.75vw;
+    }
+}

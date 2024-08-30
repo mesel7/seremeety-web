@@ -1,12 +1,18 @@
 .ProfileContent {
     display: flex;
     flex-direction: column;
-    padding: 0 30px;
-    padding-bottom: 90px;
-    gap: 20px;
+    padding: 30px;
+    padding-bottom: 120px;
+    gap: 30px;
 }
 
-.ProfileContent img {
+.ProfileContent .img_section {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.ProfileContent .img_section img {
+    width: 100%;
     border: 1px solid #ececec;
     border-radius: 5px;
 }

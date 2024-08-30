@@ -1,11 +1,16 @@
-import { useEffect, useState } from "react";
-import { getAgeByBirthDate, mypageForm } from "../../utils";
-import Button from "../common/Button";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { compressImage, getAgeByBirthDate, mypageForm } from "../../utils";
 import "./MypageContent.css";
 import MypageForm from "./MypageForm";
+import CropperModal from "../cropper/CropperModal";
+import ImageLoading from "../common/ImageLoading";
 
-const MypageContent = ({ userProfile, onSave }) => {
-    const [formData, setFormData] = useState({});
+const MypageContent = ({ userProfile, setFormData }) => {
+    const [isImgLoaded, setIsImgLoaded] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [croppedImage, setCroppedImage] = useState(null);
+    const [openCropper, setOpenCropper] = useState(false);
+    const imageUploadRef = useRef(null);
 
     useEffect(() => {
         if (userProfile) {
@@ -13,32 +18,70 @@ const MypageContent = ({ userProfile, onSave }) => {
         }
     }, [userProfile]);
 
-    const handleFormDataChange = (id, data) => {
-        const updatedData = { ...formData, [id]: data };
-        if (id === "birthdate") {
-            updatedData["age"] = data ? `${getAgeByBirthDate(data)}세` : ""; 
+    const handleFormDataChange = useCallback((id, data) => {
+        setFormData(prevState => {
+            const updatedData = { ...prevState, [id]: data };
+            if (id === "birthdate") {
+                updatedData["age"] = data ? `${getAgeByBirthDate(data)}세` : ""; 
+            }
+            return updatedData;
+        });
+    }, [setFormData]);    
+
+    const handleSelectImage = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            try {
+                const compressedFile = await compressImage(file);
+                setSelectedImage(URL.createObjectURL(compressedFile));
+                setOpenCropper(true);
+            } catch (error) {
+                console.log(error);
+            }
         }
-
-        setFormData(updatedData);
     };
 
-    const handleSave = () => {
-        onSave(formData);
+    const handleCropComplete = () => {
+        setFormData({ ...userProfile, profilePictureUrl: croppedImage });
+        setOpenCropper(false);
     };
-
+    
     return (
         <div className="MypageContent">
-            <img alt="PROFILE" src={formData["profilePictureUrl"] || "/logo192.png"} />
+            {openCropper && (
+                <CropperModal
+                selectedImage={selectedImage}
+                setCroppedImage={setCroppedImage}
+                setOpenCropper={setOpenCropper}
+                handleCropComplete={handleCropComplete}
+                />
+            )}
+            <div className="img_section">
+                {!isImgLoaded && <ImageLoading />}
+                <img
+                    alt="PROFILE"
+                    src={userProfile["profilePictureUrl"]}
+                    onClick={() => imageUploadRef.current.click()}
+                    onLoad={() => setIsImgLoaded(true)}
+                    style={{ display: !isImgLoaded ? "none" : "block" }}
+                />
+            </div>
+            <input
+                type="file"
+                ref={imageUploadRef}
+                accept="image/*" 
+                style={{ display: "none" }}
+                onChange={handleSelectImage}
+            />
             {mypageForm.map((it, idx) => (
                 <MypageForm
                     key={idx}
                     {...it}
-                    data={formData[it.id]}
+                    data={userProfile[it.id]}
                     onChange={handleFormDataChange}
-                    isDisabled={formData["profileStatus"]}
+                    isDisabled={userProfile["profileStatus"]}
                 />
             ))}
-            <Button text={"저장하기"} onClick={handleSave} />
         </div>
     );
 };

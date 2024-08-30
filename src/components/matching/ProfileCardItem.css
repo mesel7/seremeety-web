@@ -4,16 +4,26 @@
     flex-direction: column;
     height: fit-content;
     background-color: white;
-    border: solid 1px #e1e1e1;
+    border: solid 1px #ececec;
     border-radius: 5px;
     box-shadow: rgba(100, 100, 100, 0.2) 3px 3px 4px 0px;
     padding: 10px;
     gap: 10px;
 }
 
+.ProfileCardItem .img_section {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.ProfileCardItem .img_alt {
+    width: 100%;
+    height: 100%;
+}
+
 .ProfileCardItem img {
     width: 100%;
-    border: 1px solid #e1e1e1;
+    border: 1px solid #ececec;
     border-radius: 5px;
 }
 

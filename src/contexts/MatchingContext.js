@@ -28,7 +28,7 @@ export const MatchingProvider = ({ children }) => {
 
         fetchUserProfiles();
     }, []);
-
+    
     return (
         <MatchingStateContext.Provider value={state}>
             {children}
