@@ -1,7 +1,7 @@
 .RequestItem {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     padding-bottom: 20px;
     border-bottom: 1px solid #ececec;
 }
@@ -9,10 +9,14 @@
 .RequestItem .img_section {
     cursor: pointer;
     width: 20%;
-    aspect-ratio: 1 / 1;
+    padding-top: 20%;
+    position: relative;
 }
 
 .RequestItem .img_section img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     border-radius: 5px;
 }
@@ -21,7 +25,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 10px;
 }
 
 .RequestItem .content_section .info_wrapper {
@@ -41,23 +45,35 @@
 }
 
 .RequestItem .content_section .status_wrapper {
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px
 }
 
 .RequestItem .content_section .status_wrapper .icon_wrapper {
     display: flex;
     width: 15%;
-    justify-content: center;
+    font-size: 14px;
 }
 
-.RequestItem .content_section .status_wrapper .Button {
+.RequestItem .content_section .status_wrapper .text_wrapper {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 16px;
+}
+
+.RequestItem .content_section .status_wrapper .text_wrapper .pending_progressbar {
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background-color: #92a8d1;
 }
 
 @media (max-width: 420px) {
-    .RequestItem .content_section .info_wrapper .nickname_wrapper {
+    .RequestItem .content_section .info_wrapper .nickname_wrapper,
+    .RequestItem .content_section .status_wrapper .text_wrapper {
         font-size: 3.8vw;
     }
 
@@ -66,6 +82,6 @@
     }
 
     .RequestItem .content_section .status_wrapper .icon_wrapper {
-        font-size: 3.75vw;
+        font-size: 3.3vw;
     }
 }

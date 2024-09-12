@@ -1,5 +1,5 @@
 .ChatRoomInput {
-    position: fixed;
+    position: sticky;
     bottom: 0;
     box-sizing: border-box;
     width: 100%;

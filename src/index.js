@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import './sweetalert2.css';
+import './select.css';
+import './tooltip.css';
 import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -11,4 +13,3 @@ root.render(
         <App />
     </BrowserRouter>
 );
-

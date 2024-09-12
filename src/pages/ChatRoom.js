@@ -7,6 +7,7 @@ import { getChatRoomById, getUserDataByUid, subscribeToChatRoomMessages } from "
 import { auth } from "../firebase";
 import { ChatDispatchContext } from "../contexts/ChatContext";
 import Swal from "sweetalert2";
+import PageTransition from "../components/common/PageTransition";
 
 const ChatRoom = () => {
     const { chatRoomId } = useParams();
@@ -63,13 +64,15 @@ const ChatRoom = () => {
 
     return (
         <div className="ChatRoom">
-            <ChatRoomHeader nickname={otherUserData.nickname}/>
-            <ChatRoomContent
-                chatRoomMessages={chatRoomMessages}
-                nickname={otherUserData.nickname}
-                profilePictureUrl={otherUserData.profilePictureUrl}
-            />
-            <ChatRoomInput onUpdateChatRoom={onUpdate} chatRoomId={chatRoomId} />
+            <PageTransition>
+                <ChatRoomHeader nickname={otherUserData.nickname}/>
+                <ChatRoomContent
+                    chatRoomMessages={chatRoomMessages}
+                    nickname={otherUserData.nickname}
+                    profilePictureUrl={otherUserData.profilePictureUrl}
+                />
+                <ChatRoomInput onUpdateChatRoom={onUpdate} chatRoomId={chatRoomId} />
+            </PageTransition>
         </div>
     );
 };

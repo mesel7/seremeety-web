@@ -1,0 +1,13 @@
+.mypage-tooltip {
+    z-index: 200;
+    background-color: #92a8d1 !important;
+    color: white !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+}
+
+@media (max-width: 420px) {
+    .mypage-tooltip {
+        font-size: 3.3vw !important;
+    }
+}

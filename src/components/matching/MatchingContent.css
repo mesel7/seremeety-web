@@ -1,7 +1,29 @@
 .MatchingContent {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: column;
     padding: 30px;
     padding-bottom: 120px;
-    gap: 30px;
+    gap: 60px;
+}
+
+.MatchingContent .card_section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.MatchingContent .option_section Button {
+    width: 100%;
+}
+
+.MatchingContent .option_section .no_more_cards {
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+@media (max-width: 420px) {
+    .MatchingContent .option_section .no_more_cards {
+        font-size: 3.8vw;
+    }
 }

@@ -24,6 +24,18 @@ function App() {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
 
   useEffect(() => {
+    const handleContextMenu = (e) => {
+        e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+        document.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
+  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (currentUser) {
         setCurrentUser(currentUser);

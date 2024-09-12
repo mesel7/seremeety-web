@@ -1,7 +1,13 @@
 .MyProfilePreview {
     display: flex;
+    flex-direction: column;
     gap: 20px;
     padding: 30px;
+    border-bottom: 1px solid #ececec;
+}
+
+.MyProfilePreview .preview_section {
+    display: flex;
 }
 
 .MyProfilePreview .img_nickname_section {
@@ -14,11 +20,16 @@
 
 .MyProfilePreview .img_nickname_section .img_wrapper {
     width: 100%;
-    aspect-ratio: 1 / 1;
+    padding-top: 100%;
+    position: relative;
 }
 
 .MyProfilePreview .img_nickname_section .img_wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    border: 1px solid #ececec;
     border-radius: 5px;
 }
 
@@ -28,7 +39,7 @@
 }
 
 .MyProfilePreview .content_section {
-    flex: 1;
+    flex: 1 1;
     display: flex;
     flex-direction: column;
 }
@@ -40,18 +51,45 @@
     justify-content: space-between;
 }
 
-.MyProfilePreview .content_section .info_wrapper {
+.MyProfilePreview .content_section .info_section .info_wrapper {
+    width: 30%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
     font-size: 14px;
-    font-weight: bold;
 }
 
-.MyProfilePreview .content_section button {
+.MyProfilePreview .content_section .info_wrapper .text_wrapper {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.MyProfilePreview .content_section .link_section {
+    display: flex;
+    justify-content: end;
+    font-size: 16px;
+}
+
+.MyProfilePreview .content_section .link_section .link_wrapper {
+    cursor: pointer;
+    display: flex;
+    gap: 10px;
+}
+
+.MyProfilePreview .menu_section {
+    display: flex;
+    gap: 10px;
+}
+
+.MyProfilePreview .menu_section button {
     padding: 5px;
     font-size: 14px;
+    width: 50%;
 }
 
 @media (max-width: 420px) {
@@ -59,13 +97,17 @@
         font-size: 3.8vw;
     }
 
-    .MyProfilePreview .content_section .info_wrapper {
+    .MyProfilePreview .content_section .info_section .info_wrapper {
         font-size: 3.3vw;
     }
 
-    .MyProfilePreview .content_section button {
+    .MyProfilePreview .menu_section button {
         padding: 1.2vw;
         font-size: 3.3vw;
+    }
+
+    .MyProfilePreview .content_section .link_section {
+        font-size: 3.8vw;
     }
 }
 

@@ -10,7 +10,7 @@ const Chat = () => {
     return (
         <div className="ChatList">
             <PageHeader page={"chat"}/>
-            <ChatContent chatRooms={state} />
+                <ChatContent chatRooms={state} />
             <BottomMenu />
         </div>
     );

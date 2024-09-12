@@ -26,6 +26,7 @@
 .CropperModal .cropper_menu .apply_crop {
     cursor: pointer;
     margin: 10px;
+    font-weight: bold;
 }
 
 .cropper_wrapper {

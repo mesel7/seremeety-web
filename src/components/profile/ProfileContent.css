@@ -8,11 +8,79 @@
 
 .ProfileContent .img_section {
     width: 100%;
-    aspect-ratio: 1 / 1;
+    padding-top: 100%;
+    position: relative;
 }
 
 .ProfileContent .img_section img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     border: 1px solid #ececec;
     border-radius: 5px;
+}
+
+.ProfileContent .info_section_upper {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    gap: 20px;
+    font-weight: bold;
+}
+
+.ProfileContent .info_section_upper .age_gender_wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.ProfileContent .info_section_lower {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 16px;
+    gap: 10px;
+}
+
+.ProfileContent .info_section_lower .info_wrapper {
+    display: flex;
+    gap: 5px;
+    padding: 5px 10px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+}
+
+.ProfileContent .introduce_section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.ProfileContent .introduce_section .introduce_label {
+    display: flex;
+    gap: 5px;
+    font-weight: bold;
+}
+
+.ProfileContent .introduce_section .introduce_wrapper {
+    line-height: 1.5;
+}
+
+@media (max-width: 420px) {
+    .ProfileContent .info_section_upper {
+        font-size: 4.8vw;
+    }
+
+    .ProfileContent .info_section_lower {
+        font-size: 3.8vw;
+    }
+
+    .ProfileContent .info_section_lower .info_wrapper {
+        padding: 1.2vw 2.4vw;
+    }
+
+    .ProfileContent .introduce_section {
+        font-size: 3.8vw;
+    }
 }

@@ -11,7 +11,15 @@ const ImageLoading = () => {
     return (
         <animated.div
             className="ImageLoading"
-            style={{ ...gradientAnimation, width: "100%", height: "100%", borderRadius: "5px" }}
+            style={{
+                ...gradientAnimation,
+                position: "absolute",
+                top: "0",
+                left: "0",
+                width: "100%",
+                height: "100%",
+                borderRadius: "5px",
+            }}
         />
     );
 };

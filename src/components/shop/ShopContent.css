@@ -1,0 +1,39 @@
+.ShopContent {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    padding-bottom: 120px;
+    gap: 20px;
+}
+
+.ShopContent .shop_text {
+    font-size: 16px;
+}
+
+.ShopContent .shop_coupon {
+    cursor: pointer;
+    width: max-content;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #92a8d1;
+}
+
+
+.bootpay-window .progress-message-window .close-message-box .close-popup h4.sub-title {
+    font-size: 16px !important;
+    line-height: 1.5;
+}
+
+@media (max-width: 420px) {
+    .ShopContent .shop_text,
+    .ShopContent .shop_coupon {
+        font-size: 3.8vw;
+    }
+
+    .bootpay-window .progress-message-window .close-message-box .close-popup h4.sub-title {
+        font-size: 3.8vw !important;
+    }    
+}

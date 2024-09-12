@@ -5,6 +5,7 @@ import { MypageStateContext } from "../contexts/MypageContext";
 import SettingContent from "../components/setting/SettingContent";
 import MyProfilePreview from "../components/mypage/MyProfilePreview";
 import Loading from "../components/common/Loading";
+import SelfIntroduction from "../components/mypage/SelfIntroduction";
 
 const Mypage = () => {
     const state = useContext(MypageStateContext);
@@ -15,9 +16,10 @@ const Mypage = () => {
     } else {
         return (
             <div className="Mypage">
-                <PageHeader page={"mypage"} />
-                <MyProfilePreview userProfile={state} />
-                <SettingContent />
+                <PageHeader page={"mypage"} userProfile={state} />
+                    <MyProfilePreview userProfile={state} />
+                    <SelfIntroduction userProfile={state} />
+                    <SettingContent />
                 <BottomMenu />
             </div>
         );

@@ -1,0 +1,22 @@
+.LoginLogo {
+    width: 75%;
+    padding: 30px;
+}
+
+.LoginLogo img {
+    width: 100%;
+}
+
+.LoginLogo .logo_text {
+    font-family: 'Rochester';
+    font-size: 48px;
+    color: #92a8d1;
+    font-weight: bold;
+    text-align: center;
+}
+
+@media (max-width: 420px) {
+    .LoginLogo .logo_text {
+        font-size: 11vw;
+    }
+}

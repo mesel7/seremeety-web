@@ -49,10 +49,13 @@ export const MypageProvider = ({ children }) => {
             });
 
             Swal.fire({
-                title: "프로필 저장",
+                title: "프로필 저장 성공",
                 text: "성공적으로 저장되었습니다!",
                 icon: "success",
-                confirmButtonText: "확인"
+                confirmButtonText: "확인",
+                customClass: {
+                    confirmButton: 'no-focus-outline'
+                },
             });
         } catch (error) {
             console.log(error);
@@ -60,10 +63,25 @@ export const MypageProvider = ({ children }) => {
                 title: "프로필 저장 실패",
                 text: "오류가 발생했습니다",
                 icon: "error",
-                confirmButtonText: "확인"
+                confirmButtonText: "확인",
+                customClass: {
+                    confirmButton: 'no-focus-outline'
+                },
             });
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const onUpdateCoin = async (newData) => {
+        try {
+            await updateUserDataByUid(auth.currentUser.uid, newData);
+            dispatch({
+                type: "UPDATE",
+                data: { ...newData }
+            });
+        } catch (error) {
+            console.log(error);
         }
     };
 
@@ -71,7 +89,7 @@ export const MypageProvider = ({ children }) => {
         <>
             {isLoading && <Loading />}
             <MypageStateContext.Provider value={state}>
-                <MypageDispatchContext.Provider value={{ onUpdate }}>
+                <MypageDispatchContext.Provider value={{ onUpdate, onUpdateCoin }}>
                     {children}
                 </MypageDispatchContext.Provider>
             </MypageStateContext.Provider>

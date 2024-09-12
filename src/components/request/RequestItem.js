@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { formatTimeStampForList, icons } from "../../utils";
-import Button from "../common/Button";
 import "./RequestItem.css";
 import Swal from "sweetalert2";
 import { useState } from "react";
@@ -73,8 +72,8 @@ const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
     const statusText = { pending: "매칭 대기", accepted: "매칭 수락", rejected: "매칭 실패" }[requestStatus];
     const StatusIcon = {
         pending: {
-            icon: icons.faHourglassHalf,
-            color: "#3fc3ee"
+            icon: icons.faCircleQuestion,
+            color: "gray"
         },
         accepted: {
             icon: icons.faCircleCheck,
@@ -85,7 +84,6 @@ const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
             color: "#f27474"
         }
     }[requestStatus];
-    const buttonType = { pending: "light", accepted: "", rejected: "negative"}[requestStatus];
 
     return (
         <div className="RequestItem">
@@ -103,15 +101,14 @@ const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
                     <div className="nickname_wrapper">{request.nickname}</div>
                     <div className="created_at_wrapper">{formatTimeStampForList(request.createdAt)}</div>
                 </div>
-                <div className="status_wrapper">
+                <div className="status_wrapper" onClick={handleRequestStatusClick}>
                     <div className="icon_wrapper">
-                        <FontAwesomeIcon icon={StatusIcon.icon} size={"2x"} style={{ color: "gray" }} />
+                        <FontAwesomeIcon icon={StatusIcon.icon} size={"2x"} style={{ color: StatusIcon.color }} />
                     </div>
-                    <Button
-                        text={statusText}
-                        type={buttonType}
-                        onClick={handleRequestStatusClick}
-                    />
+                    <div className="text_wrapper">
+                        {statusText}
+                        {requestStatus === "pending" && <div className="pending_progressbar" />}
+                    </div>
                 </div>
             </div>
         </div>

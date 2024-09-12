@@ -1,0 +1,83 @@
+.MatchingFilter {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 30px;
+    padding-bottom: 120px;
+    background-color: white;
+}
+
+.MatchingFilter h2 {
+    font-family: 'Rochester';
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.MatchingFilter .filter_content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.MatchingFilter .filter_content h3 {
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.MatchingFilter .filter_content .age_wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.MatchingFilter .filter_content .age_wrapper input {
+    display: inline-block;
+    box-sizing: border-box;
+    width: calc(10% - 5px);
+    font-family: 'S-CoreDream-3Light';
+    font-size: 16px;
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid lightgray;
+}
+
+.MatchingFilter .filter_content .age_wrapper input:focus {
+    outline: none;
+}
+
+.MatchingFilter .filter_content .age_wrapper span {
+    font-size: 16px;
+    padding-right: 40px;
+}
+
+.MatchingFilter .filter_menu {
+    display: flex;
+    gap: 10px;
+    padding-top: 30px;
+}
+
+.MatchingFilter .filter_menu Button {
+    padding: 5px;
+    font-size: 14px;
+    width: 50%;
+}
+
+@media (max-width: 420px) {
+    .MatchingFilter h2 {
+        font-size: 5.7vw;
+    }
+
+    .MatchingFilter .filter_content h3 {
+        font-size: 4.3vw;
+    }
+
+    .MatchingFilter .filter_content .age_wrapper input,
+    .MatchingFilter .filter_content .age_wrapper span {
+        font-size: 3.8vw;
+    }
+
+    .MatchingFilter .filter_menu Button {
+        font-size: 3.3vw;
+    }
+}
+
+

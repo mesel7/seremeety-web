@@ -11,16 +11,18 @@
 }
 
 .PageHeader .logo_wrapper {
+    font-family: 'Rochester';
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 14px;
+    font-size: 20px;
     font-weight: bold;
     color: #92a8d1;
     letter-spacing: 2px;
 }
 
 .PageHeader .logo_wrapper img {
+    cursor: pointer;
     width: 25%;
 }
 
@@ -30,12 +32,12 @@
     justify-content: space-between;
 }
 
-.PageHeader_myProfile .content_wrapper,
 .PageHeader_request .content_wrapper {
     align-items: center;
 }
 
 .PageHeader h2 {
+    font-family: 'Rochester';
     margin: 0;
     letter-spacing: 2px;
 }
@@ -43,6 +45,11 @@
 .PageHeader .header_menu {
     display: flex;
     gap: 20px;
+}
+
+.PageHeader_myProfile .header_menu {
+    cursor: pointer;
+    font-weight: bold;
 }
 
 .PageHeader_request .header_menu {
@@ -54,19 +61,19 @@
     font-size: 14px;
 }
 
-.PageHeader_mypage .my_note {
-    cursor: pointer;
+.PageHeader .my_note {
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-.PageHeader_mypage .setting {
+.PageHeader_mypage .my_note {
     cursor: pointer;
 }
 
 @media (max-width: 420px) {
     .PageHeader .logo_wrapper {
-        font-size: 3.3vw;
+        font-size: 4.8vw;
     }
 
     .PageHeader h2 {

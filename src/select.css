@@ -1,0 +1,68 @@
+#mbti, #university {
+    width: calc(80% - 5px);
+}
+
+#place {
+    width: 48%;
+}
+
+.mypage-select__control {
+    background-color: white !important;
+    border: 1px solid lightgray !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.mypage-select__indicator-separator {
+    width: 0 !important;
+}
+
+.mypage-select__menu {
+    background-color: white !important;
+}
+
+.mypage-select__single-value,
+.mypage-select__option {
+    font-size: 16px !important;
+    border: 1px solid transparent !important;
+}
+
+.mypage-select__option--is-focused {
+    background-color: white !important;
+    border: 1px solid #92a8d1 !important;
+}
+
+.mypage-select__option--is-selected {
+    background-color: #92a8d1 !important;
+    color: white !important;
+}
+
+.mypage-select__input {
+    font-size: 16px;
+}
+
+.mypage-select__placeholder {
+    font-size: 16px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.mypage-select__menu .mypage-select__menu-list {
+    font-size: 16px;
+}
+
+@media (max-width: 420px) {
+    .mypage-select__single-value,
+    .mypage-select__option,
+    .mypage-select__input,
+    .mypage-select__placeholder,
+    .mypage-select__menu .mypage-select__menu-list {
+        font-size: 3.8vw !important; 
+    }
+}

@@ -1,9 +1,11 @@
-import { faHeart as faHeartSolid, faEnvelope as faEnvelopeSolid, faComment as faCommentSolid, faUser as faUserSolid, faMusic, faGear, faPaperPlane, faAngleLeft, faCakeCandles, faLocationArrow } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartSolid, faEnvelope as faEnvelopeSolid, faComment as faCommentSolid, faUser as faUserSolid, faMusic, faGear, faPaperPlane, faAngleLeft, faCakeCandles, faLocationArrow, faAngleRight, faPhone, faHashtag, faBars, faMagnifyingGlass, faMars, faVenus, faGraduationCap, faCircleInfo, faSliders } from "@fortawesome/free-solid-svg-icons";
 import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { auth, db, storage } from "./firebase";
-import { faHeart as faHeartRegular, faEnvelope as faEnvelopeRegular, faComment as faCommentRegular, faUser as faUserRegular, faCircleCheck, faCircleXmark, faHourglassHalf } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as faHeartRegular, faEnvelope as faEnvelopeRegular, faComment as faCommentRegular, faUser as faUserRegular, faCircleCheck, faCircleXmark, faCircleQuestion } from "@fortawesome/free-regular-svg-icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import imageCompression from "browser-image-compression";
+import { universityList } from "./universities";
+import { placeList } from "./places";
 
 export const menuItem = [
     {
@@ -37,16 +39,27 @@ export const menuItem = [
 ];
 
 export const icons = {
+    faPhone,
+    faHashtag,
     faMusic,
     faGear,
     faPaperPlane,
-    faHourglassHalf,
+    faCircleQuestion,
     faCircleCheck,
     faCircleXmark,
     faAngleLeft,
+    faAngleRight,
     faCakeCandles,
     faLocationArrow,
-    faHeartSolid
+    faHeartSolid,
+    faBars,
+    faMagnifyingGlass,
+    faMars,
+    faVenus,
+    faGraduationCap,
+    faCircleInfo,
+    faUserSolid,
+    faSliders
 };
 
 export const mypageForm = [
@@ -79,51 +92,57 @@ export const mypageForm = [
     },
     {
         field: "학교",
-        type: "text",
-        id: "university"
+        type: "select",
+        id: "university",
+        options: universityList
     },
     {
         field: "지역",
-        type: "text",
-        id: "place"
+        type: "select",
+        id: "place",
+        options: placeList
     },
     {
-        field: "소개 한 마디",
+        field: "자기소개",
         type: "textarea",
         id: "introduce"
     }
 ];
 
-export const profileInfo = [
-    {
-        field: "닉네임",
-        id: "nickname"
+export const validationRules = {
+    nickname: async (value) => {
+        if (!/^[a-zA-Z0-9가-힣]{1,6}$/.test(value)) {
+            return "6자리 이하의 한글, 영문, 숫자 닉네임만 가능해요";
+        }
+        const isDuplicate = await checkNicknameDuplicate(value);
+        if (!isDuplicate) {
+            return '이미 사용 중인 닉네임이에요';
+        }
+        return true;
     },
-    {
-        field: "나이",
-        id: "age"
+    age: (value) => {
+        if (!value) {
+            return "생년월일을 입력해주세요";
+        }
+        const age = parseInt(value.match(/\d+/)[0], 10);
+        if (age < 18) {
+            return "유효한 생년월일을 입력해주세요";
+        }
+        return true;
     },
-    {
-        field: "성별",
-        id: "gender"
-    },
-    {
-        field: "MBTI",
-        id: "mbti"
-    },
-    {
-        field: "학교",
-        id: "university"
-    },
-    {
-        field: "지역",
-        id: "place"
-    },
-    {
-        field: "소개 한 마디",
-        id: "introduce"
+    gender: (value) => value ? true : "성별을 선택해 주세요",
+    mbti: (value) => value ? true : "MBTI를 선택해 주세요",
+    university: (value) => value ? true : "학교를 입력해 주세요",
+    place: (value) => value ? true : "지역을 입력해 주세요",
+    introduce: (value) => {
+        if (!value) {
+            return "자기소개를 작성해 주세요";
+        } else if (value.length > 500) {
+            return "자기소개는 최대 500자까지 작성할 수 있어요";
+        }
+        return true;
     }
-];
+};
 
 export const settingItem = [
     {
@@ -148,6 +167,29 @@ export const settingItem = [
             auth.signOut();
             window.location.reload();
         }
+    }
+];
+
+export const shopItem = [
+    {
+        quantity: 15,
+        discount: "",
+        price: 3000
+    },
+    {
+        quantity: 55,
+        discount: "10",
+        price: 9900
+    },
+    {
+        quantity: 115,
+        discount: "20",
+        price: 18400
+    },
+    {
+        quantity: 355,
+        discount: "30",
+        price: 49700
     }
 ];
 
@@ -264,6 +306,20 @@ export const formatTimeStampForMessage = (timestamp) => {
     }
 
     return `${datePart} ${timePart}`;
+};
+
+export const checkNicknameDuplicate = async (value) => {
+    const userSnapshot = await getDocs(collection(db, "users"));
+    for (const userDoc of userSnapshot.docs) {
+        const uid = userDoc.id;
+        const userData = userDoc.data();
+
+        if (uid !== auth.currentUser.uid && value === userData.nickname) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 export const getUserDataByUid = async (uid) => {

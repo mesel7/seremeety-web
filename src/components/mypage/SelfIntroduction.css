@@ -1,0 +1,37 @@
+.SelfIntroduction {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    gap: 20px;
+    border-bottom: 1px solid #ececec;
+}
+
+.SelfIntroduction h2 {
+    font-family: 'Rochester';
+    margin: 0;
+    letter-spacing: 2px;
+}
+
+.SelfIntroduction .mock_content {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.SelfIntroduction .mock_content .ProfileCardItem {
+    flex: 0 0 calc(45% - 20px);
+    box-sizing: border-box;
+}
+
+@media (max-width: 420px) {
+    .SelfIntroduction h2 {
+        font-size: 5.7vw;
+    }
+}
