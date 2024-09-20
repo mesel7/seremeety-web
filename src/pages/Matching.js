@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import BottomMenu from "../components/common/BottomMenu";
 import PageHeader from "../components/common/PageHeader";
 import { MatchingStateContext } from "../contexts/MatchingContext";
@@ -9,6 +9,7 @@ import MatchingFilter from "../components/matching/MatchingFilter";
 import { MypageStateContext } from "../contexts/MypageContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import useElementHeight from "../hooks/useElementHeight";
 
 const Matching = () => {
     const state = useContext(MatchingStateContext);
@@ -20,6 +21,10 @@ const Matching = () => {
         ageRange: [18, 30],
         place: ""
     });
+
+    const headerRef = useRef(null);
+    const footerRef = useRef(null);
+    const contentHeight = useElementHeight(headerRef, footerRef);
 
     useEffect(() => {
         const savedFilters = sessionStorage.getItem("filters");
@@ -61,19 +66,26 @@ const Matching = () => {
     } else {
         return (
             <div className="Matching">
-                <PageHeader page={"matching"} onFilterClick={toggleFilterModal} />
+                <PageHeader ref={headerRef} page={"matching"} onFilterClick={toggleFilterModal} />
                 {openFilterModal && (
                     <PageTransition direction={"y"}>
-                        <MatchingFilter filters={filters} onApply={applyFilters} onClose={toggleFilterModal} />
+                        <MatchingFilter
+                            filters={filters}
+                            onApply={applyFilters}
+                            onClose={toggleFilterModal}
+                            style={{ height: contentHeight }}
+                        />
                     </PageTransition>
                 )}
                 {!openFilterModal && (
                     <MatchingContent
                         profileCards={state}
                         filters={filters}
-                        profileStatus={userProfile.profileStatus} />
+                        profileStatus={userProfile.profileStatus}
+                        style={{ height: contentHeight }}
+                    />
                 )}
-                {!openFilterModal && <BottomMenu />}
+                {!openFilterModal && <BottomMenu ref={footerRef} />}
             </div>
         );
     }

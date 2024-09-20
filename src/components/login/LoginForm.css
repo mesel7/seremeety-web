@@ -17,6 +17,7 @@
     letter-spacing: 1px;
     box-sizing: border-box;
     vertical-align: middle;
+    border-radius: 0;
 }
 
 .LoginForm .Button {

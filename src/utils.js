@@ -1,7 +1,7 @@
-import { faHeart as faHeartSolid, faEnvelope as faEnvelopeSolid, faComment as faCommentSolid, faUser as faUserSolid, faMusic, faGear, faPaperPlane, faAngleLeft, faCakeCandles, faLocationArrow, faAngleRight, faPhone, faHashtag, faBars, faMagnifyingGlass, faMars, faVenus, faGraduationCap, faCircleInfo, faSliders } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartSolid, faEnvelope as faEnvelopeSolid, faComment as faCommentSolid, faUser as faUserSolid, faMusic, faGear, faPaperPlane, faAngleLeft, faCakeCandles, faLocationArrow, faAngleRight, faPhone, faHashtag, faBars, faMagnifyingGlass, faMars, faVenus, faGraduationCap, faCircleInfo, faSliders, faCheck, faQuestion, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { auth, db, storage } from "./firebase";
-import { faHeart as faHeartRegular, faEnvelope as faEnvelopeRegular, faComment as faCommentRegular, faUser as faUserRegular, faCircleCheck, faCircleXmark, faCircleQuestion } from "@fortawesome/free-regular-svg-icons";
+import { faHeart as faHeartRegular, faEnvelope as faEnvelopeRegular, faComment as faCommentRegular, faUser as faUserRegular } from "@fortawesome/free-regular-svg-icons";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 import { universityList } from "./universities";
@@ -44,9 +44,9 @@ export const icons = {
     faMusic,
     faGear,
     faPaperPlane,
-    faCircleQuestion,
-    faCircleCheck,
-    faCircleXmark,
+    faQuestion,
+    faCheck,
+    faXmark,
     faAngleLeft,
     faAngleRight,
     faCakeCandles,

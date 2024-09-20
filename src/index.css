@@ -7,6 +7,10 @@
   font-style: normal;
 }
 
+html {
+  overflow-y: hidden;
+}
+
 html, body {
   font-family: 'S-CoreDream-3Light';
   margin: 0;

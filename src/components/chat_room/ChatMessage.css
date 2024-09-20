@@ -1,5 +1,6 @@
 .ChatMessage {
     display: flex;
+    padding-bottom: 30px;
 }
 
 .ChatMessage_my {
@@ -7,8 +8,9 @@
 }
 
 .ChatMessage .img_section {
-    width: 15%;
-    padding-top: 15%;
+    width: 12.5%;
+    height: fit-content;
+    padding-top: 12.5%;
     position: relative;
 }
 
@@ -17,7 +19,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    border-radius: 5px;
+    border-radius: 50%;
 }
 
 .ChatMessage .content_section {
@@ -44,7 +46,7 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 14px;
     line-height: 1.4;
 }

@@ -3,8 +3,12 @@
     flex-direction: column;
     gap: 30px;
     padding: 30px;
-    padding-bottom: 120px;
+    padding-bottom: 10vh;
+    padding-bottom: 10svh;
     background-color: white;
+    box-sizing: border-box;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .MatchingFilter h2 {
@@ -32,12 +36,14 @@
 .MatchingFilter .filter_content .age_wrapper input {
     display: inline-block;
     box-sizing: border-box;
-    width: calc(10% - 5px);
+    width: 10%;
     font-family: 'S-CoreDream-3Light';
     font-size: 16px;
     text-align: center;
     border: none;
     border-bottom: 1px solid lightgray;
+    border-radius: 0;
+    padding: 0;
 }
 
 .MatchingFilter .filter_content .age_wrapper input:focus {
@@ -46,6 +52,7 @@
 
 .MatchingFilter .filter_content .age_wrapper span {
     font-size: 16px;
+    padding-left: 10px;
     padding-right: 40px;
 }
 

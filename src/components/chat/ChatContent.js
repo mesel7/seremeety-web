@@ -5,7 +5,7 @@ import { auth } from "../../firebase";
 import { getUserDataByUid } from "../../utils";
 import Loading from "../common/Loading";
 
-const ChatContent = ({ chatRooms }) => {
+const ChatContent = ({ chatRooms, style }) => {
     const [enhancedChatRooms, setEnhancedChatRooms] = useState([]);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
@@ -40,10 +40,15 @@ const ChatContent = ({ chatRooms }) => {
         return <Loading />
     } else {
         return (
-            <div className="ChatContent">
-                {enhancedChatRooms.map((it) => (
-                    <ChatRoomItem key={it.id} {...it} />
-                ))}
+            <div className="ChatContent" style={style}>
+                {chatRooms.length <= 0 ?
+                    <div className="empty_content">
+                        아직 진행 중인 채팅이 없어요
+                    </div> :
+                    enhancedChatRooms.map((it) => (
+                        <ChatRoomItem key={it.id} {...it} />
+                    ))
+                }
             </div>
         );
     }

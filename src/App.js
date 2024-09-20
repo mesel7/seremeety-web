@@ -17,6 +17,7 @@ import { ChatProvider } from './contexts/ChatContext';
 import ChatRoom from './pages/ChatRoom';
 import Loading from './components/common/Loading';
 import MyProfile from './pages/MyProfile';
+import Setting from './pages/Setting';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -112,6 +113,7 @@ function App() {
           <Route path={"/mypage"} element={currentUser ? <Mypage /> : <Navigate to={"/"} />} />
           <Route path={"/my-profile"} element={currentUser ? <MyProfile /> : <Navigate to={"/"} />} />
           <Route path={"/shop"} element={currentUser ? <Shop /> : <Navigate to={"/"} />} />
+          <Route path={"/setting"} element={currentUser ? <Setting /> : <Navigate to={"/"} />} />
         </Routes>
       </div>
   );

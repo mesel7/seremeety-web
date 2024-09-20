@@ -1,13 +1,14 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../components/common/PageHeader";
 import ProfileContent from "../components/profile/ProfileContent";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { getUserDataByUid } from "../utils";
 import { RequestDispatchContext } from "../contexts/RequestContext";
 import Swal from "sweetalert2";
 import Loading from "../components/common/Loading";
 import PageTransition from "../components/common/PageTransition";
 import { MypageDispatchContext, MypageStateContext } from "../contexts/MypageContext";
+import useElementHeight from "../hooks/useElementHeight";
 
 const Profile = () => {
     const [userProfile, setUserProfile] = useState({});
@@ -18,6 +19,10 @@ const Profile = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isViewOnly = location.state?.isViewOnly || false;
+
+    const headerRef = useRef(null);
+    const footerRef = useRef(null);
+    const contentHeight = useElementHeight(headerRef, footerRef);
 
     useEffect(() => {
         if (state.profileStatus === undefined) {
@@ -72,7 +77,7 @@ const Profile = () => {
         return (
             <div className="Profile">
                 <PageTransition>
-                    <PageHeader page={"profile"} />
+                    <PageHeader ref={headerRef} page={"profile"} />
                     <ProfileContent
                         userProfile={userProfile}
                         uid={uid}
@@ -80,6 +85,7 @@ const Profile = () => {
                         onCreateRequest={onCreate}
                         myProfile={state}
                         onUpdateCoin={onUpdateCoin}
+                        style={{ height: contentHeight }}
                     />
                 </PageTransition>
             </div>

@@ -1,26 +1,27 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import PageHeader from "../components/common/PageHeader";
 import BottomMenu from "../components/common/BottomMenu";
 import { MypageStateContext } from "../contexts/MypageContext";
-import SettingContent from "../components/setting/SettingContent";
-import MyProfilePreview from "../components/mypage/MyProfilePreview";
 import Loading from "../components/common/Loading";
-import SelfIntroduction from "../components/mypage/SelfIntroduction";
+import MyContent from "../components/mypage/MyContent";
+import useElementHeight from "../hooks/useElementHeight";
 
 const Mypage = () => {
     const state = useContext(MypageStateContext);
     console.log(state);
+
+    const headerRef = useRef(null);
+    const footerRef = useRef(null);
+    const contentHeight = useElementHeight(headerRef, footerRef);
 
     if (Object.keys(state).length <= 0) {
         return <Loading />;
     } else {
         return (
             <div className="Mypage">
-                <PageHeader page={"mypage"} userProfile={state} />
-                    <MyProfilePreview userProfile={state} />
-                    <SelfIntroduction userProfile={state} />
-                    <SettingContent />
-                <BottomMenu />
+                <PageHeader ref={headerRef} page={"mypage"} userProfile={state} />
+                    <MyContent userProfile={state} style={{ height: contentHeight }} />
+                <BottomMenu ref={footerRef} />
             </div>
         );
     }

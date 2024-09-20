@@ -17,7 +17,7 @@ const ProfileCardItem = ({ uid, profilePictureUrl, nickname, age, gender, place,
     return (
         <div className="ProfileCardItem" onClick={handleProfileCardClick}>
             <div className="img_section">
-                {!isImgLoaded && <ImageLoading />}
+                {!isImgLoaded && <ImageLoading borderRadius={"5px"} />}
                 <img
                     alt="PROFILE"
                     src={profileStatus === 1 ? profilePictureUrl : sereMeetyLogo}

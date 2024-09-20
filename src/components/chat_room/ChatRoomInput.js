@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import "./ChatRoomInput.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { icons } from "../../utils";
 
-const ChatRoomInput = ({ onUpdateChatRoom, chatRoomId }) => {
+const ChatRoomInput = forwardRef(({ onUpdateChatRoom, chatRoomId }, ref) => {
     const [chatMessage, setChatMessage] = useState("");
 
     const handleInputMessage = (e) => {
@@ -16,7 +16,7 @@ const ChatRoomInput = ({ onUpdateChatRoom, chatRoomId }) => {
     };
 
     return (
-        <div className="ChatRoomInput">
+        <div className="ChatRoomInput" ref={ref}>
             <input type={"text"} value={chatMessage} onChange={handleInputMessage} />
             <div className="send_icon_wrapper">
             {chatMessage && (
@@ -30,6 +30,6 @@ const ChatRoomInput = ({ onUpdateChatRoom, chatRoomId }) => {
             </div>
         </div>
     );
-};
+});
 
 export default ChatRoomInput;

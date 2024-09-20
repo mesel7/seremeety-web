@@ -4,7 +4,7 @@ import Button from "../common/Button";
 import Select from "react-select";
 import { placeList } from "../../places";
 
-const MatchingFilter = ({ filters, onApply, onClose }) => {
+const MatchingFilter = ({ filters, onApply, onClose, style }) => {
     const [ageRange, setAgeRange] = useState(filters.ageRange);
     const [place, setPlace] = useState(filters.place);
 
@@ -38,7 +38,7 @@ const MatchingFilter = ({ filters, onApply, onClose }) => {
     };
 
     return (
-        <div className="MatchingFilter">
+        <div className="MatchingFilter" style={style}>
             <h2>Matching Filters</h2>
             <div className="filter_content">
                 <div className="age_filter">

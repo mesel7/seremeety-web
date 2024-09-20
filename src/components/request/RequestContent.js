@@ -6,7 +6,7 @@ import { RequestDispatchContext } from "../../contexts/RequestContext";
 import { ChatDispatchContext } from "../../contexts/ChatContext";
 import Loading from "../common/Loading";
 
-const RequestContent = ({ requests, isReceived }) => {
+const RequestContent = ({ requests, isReceived, style }) => {
     const { onUpdate } = useContext(RequestDispatchContext);
     const { onCreate } = useContext(ChatDispatchContext);
     const [enhancedRequests, setEnhancedRequests] = useState([]);
@@ -42,15 +42,20 @@ const RequestContent = ({ requests, isReceived }) => {
         return <Loading />;
     } else {
         return (
-            <div className="RequestContent">
-                {enhancedRequests.map((it) => (
-                    <RequestItem
-                        key={it.id}
-                        request={it}
-                        onUpdateRequest={onUpdate}
-                        onCreateChatRoom={onCreate}
-                    />
-                ))}
+            <div className="RequestContent" style={style}>
+                {enhancedRequests.length <= 0 ?
+                    <div className="empty_content">
+                        {isReceived ? "아직 받은 요청이 없어요" : "아직 보낸 요청이 없어요"}
+                    </div> :
+                    enhancedRequests.map((it) => (
+                        <RequestItem
+                            key={it.id}
+                            request={it}
+                            onUpdateRequest={onUpdate}
+                            onCreateChatRoom={onCreate}
+                        />
+                    ))
+                }
             </div>
         );
     }

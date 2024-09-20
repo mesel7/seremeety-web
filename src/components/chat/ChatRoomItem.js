@@ -15,7 +15,7 @@ export const ChatRoomItem = ({ id, nickname, profilePictureUrl, lastMessage }) =
     return (
         <div className="ChatRoomItem" onClick={handleChatRoomClick}>
             <div className="img_section">
-                {!isImgLoaded && <ImageLoading />}
+                {!isImgLoaded && <ImageLoading borderRadius={"50%"} />}
                 <img
                     alt={"PROFILE"}
                     src={profilePictureUrl}

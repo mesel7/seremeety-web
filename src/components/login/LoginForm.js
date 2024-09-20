@@ -9,7 +9,7 @@ const LoginForm = ({ type, value, onChange, placeholder, maxLength, btnText, onS
         <div className="LoginForm">
             <FontAwesomeIcon
                 icon={type === "tel" ? icons.faPhone : icons.faHashtag}
-                style={{ color: "gray" }}
+                style={{ color: "#92a8d1" }}
             />
             <input
                 type={type}
@@ -18,7 +18,7 @@ const LoginForm = ({ type, value, onChange, placeholder, maxLength, btnText, onS
                 placeholder={placeholder}
                 maxLength={maxLength}
             />
-            <Button text={btnText} type={"light"} onClick={onSubmit} />
+            <Button text={btnText} onClick={onSubmit} />
         </div>
     )
 };

@@ -5,7 +5,7 @@ import MypageForm from "./MypageForm";
 import CropperModal from "../cropper/CropperModal";
 import ImageLoading from "../common/ImageLoading";
 
-const MypageContent = ({ userProfile, setFormData }) => {
+const MypageContent = ({ userProfile, setFormData, style }) => {
     const [isImgLoaded, setIsImgLoaded] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [croppedImage, setCroppedImage] = useState(null);
@@ -47,7 +47,7 @@ const MypageContent = ({ userProfile, setFormData }) => {
     };
     
     return (
-        <div className="MypageContent">
+        <div className="MypageContent" style={style}>
             {openCropper && (
                 <CropperModal
                 selectedImage={selectedImage}
@@ -57,7 +57,7 @@ const MypageContent = ({ userProfile, setFormData }) => {
                 />
             )}
             <div className="img_section">
-                {!isImgLoaded && <ImageLoading />}
+                {!isImgLoaded && <ImageLoading borderRadius={"5px"} />}
                 <img
                     alt="PROFILE"
                     src={userProfile["profilePictureUrl"]}

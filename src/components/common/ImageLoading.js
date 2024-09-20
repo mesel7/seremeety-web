@@ -1,6 +1,6 @@
 import { useSpring, animated } from "react-spring";
 
-const ImageLoading = () => {
+const ImageLoading = ({ borderRadius }) => {
     const gradientAnimation = useSpring({
         from: { background: "linear-gradient(to right, #f6f6f6 0%, #f6f6f6 100%)" },
         to: { background: "linear-gradient(to right, lightgray 0%, #f6f6f6 100%)" },
@@ -18,7 +18,7 @@ const ImageLoading = () => {
                 left: "0",
                 width: "100%",
                 height: "100%",
-                borderRadius: "5px",
+                borderRadius: borderRadius,
             }}
         />
     );

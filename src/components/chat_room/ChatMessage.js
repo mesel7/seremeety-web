@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import { formatTimeStampForMessage } from "../../utils";
 import "./ChatMessage.css";
@@ -10,7 +11,7 @@ const ChatMessage = ({ isMyMsg, nickname, profilePictureUrl, text, sentAt }) => 
         <div className={["ChatMessage", `ChatMessage_${isMyMsg ? "my" : "other"}`].join(" ")}>
             {!isMyMsg && (
                 <div className="img_section">
-                    {!isImgLoaded && <ImageLoading />}
+                    {!isImgLoaded && <ImageLoading borderRadius={"50%"} />}
                     <img
                         alt={"PROFILE"}
                         src={profilePictureUrl}
@@ -28,4 +29,4 @@ const ChatMessage = ({ isMyMsg, nickname, profilePictureUrl, text, sentAt }) => 
     );
 };
 
-export default ChatMessage;
+export default React.memo(ChatMessage);

@@ -2,8 +2,11 @@
     display: flex;
     flex-direction: column;
     padding: 30px;
-    padding-bottom: 120px;
+    padding-bottom: 10vh;
+    padding-bottom: 10svh;
     gap: 30px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .MypageContent .img_section {

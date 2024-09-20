@@ -72,15 +72,15 @@ const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
     const statusText = { pending: "매칭 대기", accepted: "매칭 수락", rejected: "매칭 실패" }[requestStatus];
     const StatusIcon = {
         pending: {
-            icon: icons.faCircleQuestion,
+            icon: icons.faQuestion,
             color: "gray"
         },
         accepted: {
-            icon: icons.faCircleCheck,
+            icon: icons.faCheck,
             color: "#a5dc86"
         },
         rejected: {
-            icon: icons.faCircleXmark,
+            icon: icons.faXmark,
             color: "#f27474"
         }
     }[requestStatus];
@@ -88,7 +88,7 @@ const RequestItem = ({ request, onUpdateRequest, onCreateChatRoom }) => {
     return (
         <div className="RequestItem">
             <div className="img_section" onClick={handleProfilePictureClick}>
-                {!isImgLoaded && <ImageLoading />}
+                {!isImgLoaded && <ImageLoading borderRadius={"50%"} />}
                 <img
                     alt={"PROFILE"}
                     src={request.profilePictureUrl}

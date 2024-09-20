@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import "./BottomMenu.css";
-import { useEffect, useState } from "react";
+import { forwardRef, useCallback, useEffect, useState } from "react";
 import { menuItem } from "../../utils";
 import MenuItem from "./MenuItem";
 
-const BottomMenu = () => {
+const BottomMenu = forwardRef((props, ref) => {
     const [selectedRoute, setSelectedRoute] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
@@ -13,7 +13,7 @@ const BottomMenu = () => {
         setSelectedRoute(location.pathname);
     }, [location.pathname]);
 
-    const isSelected = (route) => {
+    const isSelected = useCallback((route) => {
         if (!route) {
             return false;
         }
@@ -21,18 +21,18 @@ const BottomMenu = () => {
             return selectedRoute === route;
         }
         return selectedRoute.startsWith(route) && selectedRoute !== "/";
-    };
+    }, [selectedRoute]);
     
-    const handleMenuClick = (e) => {
+    const handleMenuClick = useCallback((e) => {
         const route = e.currentTarget.getAttribute("data-route");
         if (route) {
             navigate(route);
-            setSelectedRoute(route);
+            setSelectedRoute((prev) => route);
         }
-    };
+    }, [navigate]);
 
     return (
-        <div className="BottomMenu">
+        <div className="BottomMenu" ref={ref}>
             {menuItem.map((it, idx) => (
                 <MenuItem
                     key={idx}
@@ -43,6 +43,6 @@ const BottomMenu = () => {
             ))}
         </div>
     );
-};
+});
 
 export default BottomMenu;

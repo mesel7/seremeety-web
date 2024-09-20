@@ -8,7 +8,7 @@ import ImageLoading from "../common/ImageLoading";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const ProfileContent = ({ userProfile, uid, isViewOnly, onCreateRequest, myProfile, onUpdateCoin }) => {
+const ProfileContent = ({ userProfile, uid, isViewOnly, onCreateRequest, myProfile, onUpdateCoin, style }) => {
     const [isImgLoaded, setIsImgLoaded] = useState(false);
     const navigate = useNavigate();
 
@@ -79,9 +79,9 @@ const ProfileContent = ({ userProfile, uid, isViewOnly, onCreateRequest, myProfi
     };
 
     return (
-        <div className="ProfileContent">
+        <div className="ProfileContent" style={style}>
             <div className="img_section">
-                {!isImgLoaded && <ImageLoading />}
+                {!isImgLoaded && <ImageLoading borderRadius={"5px"} />}
                 <img
                     alt="PROFILE"
                     src={userProfile["profilePictureUrl"]}

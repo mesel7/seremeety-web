@@ -4,8 +4,9 @@ import { icons } from "../../utils";
 import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import sereMeetyLogo from "../../images/img_seremeety_logo.png";
+import { forwardRef } from "react";
 
-const PageHeader = ({ page, userProfile, onSaveProfile, onFilterClick, isReceived, setIsReceived }) => {
+const PageHeader = forwardRef(({ page, userProfile, onSaveProfile, onFilterClick, isReceived, setIsReceived }, ref) => {
     const navigate = useNavigate();
 
     const renderHeaderElements = () => {
@@ -64,6 +65,11 @@ const PageHeader = ({ page, userProfile, onSaveProfile, onFilterClick, isReceive
                                 <FontAwesomeIcon icon={icons.faMusic} />
                                 {userProfile.coin}
                             </div>
+                            <FontAwesomeIcon
+                                icon={icons.faGear}
+                                style={{ cursor: "pointer" }}
+                                onClick={() => navigate("/setting")}
+                            />
                         </div>
                     </>
                 );
@@ -88,12 +94,13 @@ const PageHeader = ({ page, userProfile, onSaveProfile, onFilterClick, isReceive
                         </div>
                     </>
                 );
+            case "setting": return <h2>Setting</h2>;
             default: return null;
         }
     };
 
     return (
-        <div className={["PageHeader", `PageHeader_${page}`].join(" ")}>
+        <div className={["PageHeader", `PageHeader_${page}`].join(" ")} ref={ref}>
             <div className="logo_wrapper">
                 <img alt={"LOGO"} src={sereMeetyLogo} onClick={() => navigate("/mypage")}/>
                 Seremeety
@@ -103,6 +110,6 @@ const PageHeader = ({ page, userProfile, onSaveProfile, onFilterClick, isReceive
             </div>
         </div>
     );
-};
+});
 
 export default PageHeader;

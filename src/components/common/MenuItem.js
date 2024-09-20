@@ -1,3 +1,4 @@
+import React from "react";
 import "./MenuItem.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -13,4 +14,4 @@ const MenuItem = ({ icon, color, selectedIcon, selectedColor, dataRoute, isSelec
     ); 
 };
 
-export default MenuItem;
+export default React.memo(MenuItem);

@@ -16,7 +16,7 @@ const MyProfilePreview = ({ userProfile }) => {
             <div className="preview_section">
                 <div className="img_nickname_section">
                     <div className="img_wrapper">
-                        {!isImgLoaded && <ImageLoading />}
+                        {!isImgLoaded && <ImageLoading borderRadius={"50%"}/>}
                         <img
                             alt="PROFILE"
                             src={userProfile.profilePictureUrl}

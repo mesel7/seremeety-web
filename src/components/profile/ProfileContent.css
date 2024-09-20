@@ -2,8 +2,11 @@
     display: flex;
     flex-direction: column;
     padding: 30px;
-    padding-bottom: 120px;
+    padding-bottom: 10vh;
+    padding-bottom: 10svh;
     gap: 30px;
+    box-sizing: border-box;
+    overflow-y: auto;
 }
 
 .ProfileContent .img_section {
@@ -31,6 +34,7 @@
 
 .ProfileContent .info_section_upper .age_gender_wrapper {
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 

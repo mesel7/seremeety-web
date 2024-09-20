@@ -1,13 +1,14 @@
+import React, { forwardRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./ChatRoomHeader.css";
 import { icons } from "../../utils";
 import { useNavigate } from "react-router-dom";
 
-const ChatRoomHeader = ({ nickname }) => {
+const ChatRoomHeader = forwardRef(({ nickname }, ref) => {
     const navigate = useNavigate();
 
     return (
-        <div className="ChatRoomHeader">
+        <div className="ChatRoomHeader" ref={ref}>
             <FontAwesomeIcon
                 icon={icons.faAngleLeft}
                 style={{ cursor: "pointer" }}
@@ -20,6 +21,6 @@ const ChatRoomHeader = ({ nickname }) => {
             </div>
         </div>
     );
-};
+});
 
-export default ChatRoomHeader;
+export default React.memo(ChatRoomHeader);

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { MypageDispatchContext, MypageStateContext } from "../contexts/MypageContext";
 import PageHeader from "../components/common/PageHeader";
 import MypageContent from "../components/mypage/MypageContent";
@@ -8,13 +8,20 @@ import { validationRules } from "../utils";
 import Swal from "sweetalert2";
 import _ from "lodash";
 import { useNavigate } from "react-router-dom";
+import useElementHeight from "../hooks/useElementHeight";
+import { MatchingDispatchContext } from "../contexts/MatchingContext";
 
 const MyProfile = () => {
     const state = useContext(MypageStateContext);
+    const fetchUserProfiles = useContext(MatchingDispatchContext);
     const navigate = useNavigate();
     console.log(state);
     const { onUpdate } = useContext(MypageDispatchContext);
     const [formData, setFormData] = useState({});
+
+    const headerRef = useRef(null);
+    const footerRef = useRef(null);
+    const contentHeight = useElementHeight(headerRef, footerRef);
 
     useEffect(() => {
         setFormData(state);
@@ -53,7 +60,8 @@ const MyProfile = () => {
             }
         }
 
-        if (state.profileStatus !== 1) {
+        const isFirstSave = state.profileStatus !== 1;
+        if (isFirstSave) {
             const result = await Swal.fire({
                 title: "프로필 저장",
                 icon: "question",
@@ -73,7 +81,11 @@ const MyProfile = () => {
             }
         }
 
-        onUpdate({ ...formData, profileStatus: 1 });
+        await onUpdate({ ...formData, profileStatus: 1 });
+        if (isFirstSave) {
+            console.log("first save");
+            await fetchUserProfiles();
+        }
         navigate("/mypage");
     };
 
@@ -83,8 +95,8 @@ const MyProfile = () => {
         return (
             <div className="MyProfile">
                 <PageTransition>
-                    <PageHeader page={"myProfile"} userProfile={formData} onSaveProfile={onSave} />
-                    <MypageContent userProfile={formData} setFormData={setFormData} />
+                    <PageHeader ref={headerRef} page={"myProfile"} userProfile={formData} onSaveProfile={onSave} />
+                    <MypageContent userProfile={formData} setFormData={setFormData} style={{ height: contentHeight }} />
                 </PageTransition>
             </div>
         );

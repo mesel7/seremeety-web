@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid #ececec;
 }
 
@@ -18,7 +18,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    border-radius: 5px;
+    border-radius: 50%;
 }
 
 .RequestItem .content_section {
@@ -52,8 +52,8 @@
 
 .RequestItem .content_section .status_wrapper .icon_wrapper {
     display: flex;
-    width: 15%;
-    font-size: 14px;
+    width: 10%;
+    font-size: 10px;
 }
 
 .RequestItem .content_section .status_wrapper .text_wrapper {
@@ -82,6 +82,6 @@
     }
 
     .RequestItem .content_section .status_wrapper .icon_wrapper {
-        font-size: 3.3vw;
+        font-size: 2.4vw;
     }
 }

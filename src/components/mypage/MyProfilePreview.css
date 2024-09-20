@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 30px;
+    padding-bottom: 30px;
     border-bottom: 1px solid #ececec;
 }
 
@@ -13,9 +13,8 @@
 .MyProfilePreview .img_nickname_section {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 30%;
-    gap: 10px;
+    width: 25%;
+    gap: 15px;
 }
 
 .MyProfilePreview .img_nickname_section .img_wrapper {
@@ -30,10 +29,11 @@
     left: 0;
     width: 100%;
     border: 1px solid #ececec;
-    border-radius: 5px;
+    border-radius: 50%;
 }
 
 .MyProfilePreview .img_nickname_section .nickname_wrapper {
+    width: max-content;
     font-size: 16px;
     font-weight: bold;
 }
@@ -78,6 +78,7 @@
 .MyProfilePreview .content_section .link_section .link_wrapper {
     cursor: pointer;
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 

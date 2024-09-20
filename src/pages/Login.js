@@ -1,6 +1,6 @@
 import LoginContent from "../components/login/LoginContent";
 
-const Login = () => {
+const Login = () => { 
     return (
         <div className="Login">
             <LoginContent />

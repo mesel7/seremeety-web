@@ -5,7 +5,7 @@ import ShopItem from "./ShopItem";
 import BootPay from "bootpay-js";
 import Swal from "sweetalert2";
 
-const ShopContent = ({ userProfile, onUpdateCoin }) => {
+const ShopContent = ({ userProfile, onUpdateCoin, style }) => {
     const requestPayment = (quantity, price) => {
         BootPay.request({
             price,
@@ -72,7 +72,7 @@ const ShopContent = ({ userProfile, onUpdateCoin }) => {
     };
 
     return (
-        <div className="ShopContent">
+        <div className="ShopContent" style={style}>
             <div className="shop_text">
                 {"음표는 세레미티 매칭 활동에 사용됩니다!"}
             </div>

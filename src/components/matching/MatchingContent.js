@@ -5,7 +5,7 @@ import Button from "../common/Button";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 
-const MatchingContent = ({ profileCards, filters, profileStatus }) => {
+const MatchingContent = ({ profileCards, filters, profileStatus, style }) => {
     const [visibleCount, setVisibleCount] = useState(4);
     const navigate = useNavigate();
 
@@ -46,7 +46,7 @@ const MatchingContent = ({ profileCards, filters, profileStatus }) => {
     };
 
     return (
-        <div className="MatchingContent">
+        <div className="MatchingContent" style={style}>
             <div className="card_section">
                 {filteredCards.slice(0, visibleCount).map((it, idx) => (
                     <ProfileCardItem key={idx} {...it} profileStatus={profileStatus} />
@@ -57,7 +57,7 @@ const MatchingContent = ({ profileCards, filters, profileStatus }) => {
                     <Button text={"프로필 더 보기"} type={"light"} onClick={showMoreCards}/>
                 )}
                 {visibleCount >= filteredCards.length && (
-                    <div className="no_more_cards">더 이상 프로필이 없습니다</div>
+                    <div className="no_more_cards">더 이상 프로필이 없어요</div>
                 )}
             </div>
         </div>
