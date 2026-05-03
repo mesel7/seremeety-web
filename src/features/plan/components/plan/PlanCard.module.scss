@@ -1,0 +1,103 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+  padding: $size-20;
+  border: $border-1 solid $color-border-subtle;
+  border-radius: $size-16;
+  background-color: $color-white;
+}
+
+.root--premium {
+  border-color: $color-brand-soft;
+  background:
+    linear-gradient(180deg, rgba(188, 223, 251, 0.18) 0%, $color-white 60%),
+    $color-white;
+}
+
+.root--current {
+  border-color: $color-brand;
+  box-shadow: $shadow-light;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $size-8;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-heading;
+  font-size: $size-20;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.badge {
+  padding: $size-4 $size-10;
+  border-radius: $radius-9999;
+  background: $gradient-brand;
+  color: $color-white;
+  font-size: $size-12;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+}
+
+.price {
+  margin: 0;
+  font-size: $size-18;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.highlights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $size-8;
+}
+
+.highlight {
+  display: flex;
+  align-items: center;
+  gap: $size-8;
+  font-size: $size-14;
+  color: $color-text-secondary;
+}
+
+.action {
+  margin-top: $size-8;
+  min-height: $size-44;
+  padding: $size-12 $size-16;
+  border-radius: $size-12;
+  border: $border-1 solid rgba(146, 168, 209, 0.3);
+  background-color: rgba(255, 255, 255, 0.92);
+  color: $color-text-primary;
+  font-size: $size-16;
+  font-weight: 600;
+  transition:
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+
+  @include hover-capable {
+    opacity: 0.94;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.action--cta {
+  border: none;
+  background: $gradient-brand;
+  color: $color-white;
+  box-shadow: $shadow-light;
+}

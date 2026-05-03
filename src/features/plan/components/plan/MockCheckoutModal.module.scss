@@ -1,0 +1,32 @@
+@use '@/styles/base' as *;
+
+.summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $size-12;
+  padding: $size-16;
+  border-radius: $size-12;
+  background-color: $color-border-subtle;
+  margin-bottom: $size-12;
+}
+
+.label {
+  font-size: $size-16;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.price {
+  font-size: $size-18;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.notice {
+  margin: 0;
+  font-size: $size-14;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  text-align: left;
+}

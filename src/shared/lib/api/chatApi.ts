@@ -1,6 +1,7 @@
 import { serverTimestamp } from 'firebase/firestore';
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
 import {
   createMessage,
   getChatRoomById,
@@ -44,7 +45,7 @@ export const chatApi = baseApi.injectEndpoints({
           const data = await getChatRoomById(chatRoomId);
           return { data };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
     }),
@@ -66,21 +67,21 @@ export const chatApi = baseApi.injectEndpoints({
 
     // createMessage가 chat_rooms/{id}.lastMessage도 함께 갱신하므로
     // 별도 cache invalidation 없이 onSnapshot이 새 값을 push한다.
-    sendMessage: builder.mutation<void, SendMessageArgs>({
+    sendMessage: builder.mutation<null, SendMessageArgs>({
       async queryFn({ chatRoomId, text }) {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) {
-            return { error: new Error('not_authenticated') };
+            return { error: errorWithCode('not_authenticated') };
           }
           await createMessage(chatRoomId, {
             sender: uid,
             sentAt: serverTimestamp(),
             text,
           });
-          return { data: undefined };
+          return { data: null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
     }),

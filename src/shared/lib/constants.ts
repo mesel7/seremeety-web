@@ -4,7 +4,6 @@ import { universityList } from '@/shared/data/universities';
 import type {
   MenuItemConfig,
   ProfileFormItem,
-  ShopItemConfig,
   UserProfile,
 } from '@/shared/types/domain';
 
@@ -14,7 +13,6 @@ export const DEFAULT_PROFILE_PICTURE_URL =
 export const emptyUserProfile: UserProfile = {
   age: '',
   birthdate: '',
-  coin: 0,
   createdAt: null,
   gender: '',
   introduce: '',
@@ -104,25 +102,3 @@ export const myProfileForm: ProfileFormItem[] = [
   },
 ];
 
-export const shopItems: ShopItemConfig[] = [
-  {
-    quantity: 15,
-    discount: '',
-    price: 3000,
-  },
-  {
-    quantity: 55,
-    discount: '10',
-    price: 9900,
-  },
-  {
-    quantity: 115,
-    discount: '20',
-    price: 18400,
-  },
-  {
-    quantity: 355,
-    discount: '30',
-    price: 49700,
-  },
-];

@@ -16,3 +16,9 @@
 .loading {
   min-height: 288px;
 }
+
+// premium 사용자의 요금제 헤더 링크. 헤더의 정사각 아이콘 슬롯을 그대로 사용하고
+// premium 여부는 brand 색상으로만 구분한다 (텍스트를 넣으면 svg가 압축됨).
+.planLinkActive {
+  color: $color-brand;
+}

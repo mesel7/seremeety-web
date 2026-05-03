@@ -41,17 +41,10 @@ export interface ProfileFormItem {
   options?: readonly string[] | readonly PlaceEntry[];
 }
 
-export interface ShopItemConfig {
-  quantity: number;
-  discount: string;
-  price: number;
-}
-
 export interface UserProfile {
   uid?: string;
   age: string;
   birthdate: string;
-  coin: number;
   createdAt: TimestampLike;
   gender: Gender;
   introduce: string;
@@ -112,10 +105,6 @@ export interface ProfileStats {
 export interface AuthSessionValue {
   currentUser: import('firebase/auth').User | null;
   isLoading: boolean;
-}
-
-export interface BootPayPayload {
-  [key: string]: unknown;
 }
 
 export interface CropperModalProps {

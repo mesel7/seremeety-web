@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
 import {
   compressImage,
   dataURLToFile,
@@ -25,7 +26,7 @@ export const profileApi = baseApi.injectEndpoints({
           const data = await getUserDataByUid(uid);
           return { data };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: ['Me'],
@@ -41,7 +42,7 @@ export const profileApi = baseApi.injectEndpoints({
           const data = await getUserDataByUid(uid);
           return { data };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: (_result, _error, uid) => [{ type: 'Profile', id: uid }],
@@ -51,12 +52,12 @@ export const profileApi = baseApi.injectEndpoints({
 
     // 프로필 데이터 업데이트. profilePictureUrl이 'data:'로 시작하면 압축/업로드 후 URL 교체.
     // coin 갱신처럼 이미지가 무관한 호출도 동일 mutation으로 처리.
-    updateMe: builder.mutation<void, Partial<UserProfile>>({
+    updateMe: builder.mutation<null, Partial<UserProfile>>({
       async queryFn(payload) {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) {
-            return { error: new Error('not_authenticated') };
+            return { error: errorWithCode('not_authenticated') };
           }
 
           const next: Partial<UserProfile> = { ...payload };
@@ -67,9 +68,9 @@ export const profileApi = baseApi.injectEndpoints({
           }
 
           await updateUserDataByUid(uid, next);
-          return { data: undefined };
+          return { data: null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       // 프로필 저장 시 (특히 처음 저장으로 profileStatus 0→1 전환 시) 추천 후보가 새로

@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
 import {
   countLikesToday,
   countSuperLikesToday,
@@ -34,7 +35,7 @@ export const reactionApi = baseApi.injectEndpoints({
           const reaction = await getReaction(uid, toUserId);
           return { data: reaction?.type ?? null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: (_r, _e, toUserId) => [
@@ -63,7 +64,7 @@ export const reactionApi = baseApi.injectEndpoints({
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) {
-            return { error: new Error('not_authenticated') };
+            return { error: errorWithCode('not_authenticated') };
           }
 
           if (type === 'like' || type === 'superLike') {
@@ -95,7 +96,7 @@ export const reactionApi = baseApi.injectEndpoints({
 
           return { data: { ok: true, matched: false } };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       invalidatesTags: (_result, _error, { toUserId }) => [

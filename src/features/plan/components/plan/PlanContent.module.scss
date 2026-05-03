@@ -1,0 +1,34 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: $page-padding;
+  padding-bottom: $page-bottom-padding;
+  gap: $size-24;
+  box-sizing: border-box;
+}
+
+.notice {
+  margin: 0;
+  padding: $size-12 $size-16;
+  border-radius: $size-12;
+  background-color: $color-border-subtle;
+  font-size: $size-14;
+  color: $color-text-secondary;
+  text-align: center;
+}
+
+.loading {
+  min-height: 40svh;
+}
+
+.historyLoading {
+  min-height: 120px;
+}
+
+.planList {
+  display: flex;
+  flex-direction: column;
+  gap: $size-16;
+}

@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { serializeError } from '@/shared/lib/api/serializeError';
 import { getActiveMatchByUsers } from '@/shared/lib/firebase/matches';
 
 export const matchApi = baseApi.injectEndpoints({
@@ -13,7 +14,7 @@ export const matchApi = baseApi.injectEndpoints({
           const match = await getActiveMatchByUsers(uid, otherUserId);
           return { data: match !== null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: (_r, _e, otherUserId) => [

@@ -1,0 +1,75 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+}
+
+.heading {
+  margin: 0;
+  font-size: $size-16;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $size-8;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $size-4;
+  padding: $size-12 $size-16;
+  border: $border-1 solid $color-border-subtle;
+  border-radius: $size-12;
+  background-color: $color-white;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $size-8;
+  font-size: $size-14;
+}
+
+.plan {
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.amount {
+  color: $color-text-primary;
+}
+
+.date {
+  color: $color-text-secondary;
+}
+
+.status {
+  font-weight: 600;
+}
+
+.status--mock_success {
+  color: $color-brand;
+}
+
+.status--mock_failed,
+.status--cancelled {
+  color: $color-text-secondary;
+}
+
+.status--mock_pending {
+  color: $color-text-secondary;
+}
+
+.status--refunded {
+  color: $color-text-secondary;
+}

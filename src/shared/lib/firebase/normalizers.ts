@@ -13,8 +13,6 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 
 const readString = (value: unknown): string => (typeof value === 'string' ? value : '');
 
-const readNumber = (value: unknown): number => (typeof value === 'number' ? value : 0);
-
 const readStringArray = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 
@@ -43,7 +41,6 @@ export const normalizeUserProfile = (value: unknown, uid?: string): UserProfile 
     uid,
     age: readString(data.age),
     birthdate: readString(data.birthdate),
-    coin: readNumber(data.coin),
     createdAt: toTimestampLike(data.createdAt),
     gender: toGender(data.gender),
     introduce: readString(data.introduce),

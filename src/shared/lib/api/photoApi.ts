@@ -1,4 +1,5 @@
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { serializeError } from '@/shared/lib/api/serializeError';
 import { getProfilePhotosByUserId } from '@/shared/lib/firebase/profilePhotos';
 import type { ProfilePhoto } from '@/shared/types/model/photo';
 
@@ -14,7 +15,7 @@ export const photoApi = baseApi.injectEndpoints({
           const data = await getProfilePhotosByUserId(userId);
           return { data };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: (_r, _e, userId) => [{ type: 'Photo', id: userId }],

@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
 import { createReport } from '@/shared/lib/firebase/reports';
 import type { ReportTargetType } from '@/shared/types/model/safety';
 
@@ -13,17 +14,17 @@ interface ReportArgs {
 
 export const reportApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createReport: builder.mutation<void, ReportArgs>({
+    createReport: builder.mutation<null, ReportArgs>({
       async queryFn(args) {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) {
-            return { error: new Error('not_authenticated') };
+            return { error: errorWithCode('not_authenticated') };
           }
           await createReport(uid, args);
-          return { data: undefined };
+          return { data: null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       invalidatesTags: ['Report'],

@@ -4,17 +4,22 @@ import { useState } from 'react';
 import { Users } from 'lucide-react';
 import {
   useGetSuspendedUsersQuery,
+  useSetUserPlanMutation,
   useSetUserStatusMutation,
 } from '@/shared/lib/api/adminApi';
 import EmptyState from '@/shared/components/common/empty-state/EmptyState';
 import Loading from '@/shared/components/common/loading/Loading';
+import type { PlanId } from '@/shared/types/model/billing';
 import type { User } from '@/shared/types/model/user';
 import styles from './AdminQueuePage.module.scss';
 
 const AdminUsersPage = () => {
   const { data: suspended = [], isLoading } = useGetSuspendedUsersQuery();
   const [setUserStatus, { isLoading: isUpdating }] = useSetUserStatusMutation();
+  const [setUserPlan, { isLoading: isPlanUpdating }] = useSetUserPlanMutation();
   const [manualUid, setManualUid] = useState('');
+  const [planUid, setPlanUid] = useState('');
+  const [planSelection, setPlanSelection] = useState<PlanId>('premium');
 
   if (isLoading) {
     return <Loading />;
@@ -25,6 +30,13 @@ const AdminUsersPage = () => {
     if (!trimmed) return;
     void setUserStatus({ uid: trimmed, status: 'suspended' });
     setManualUid('');
+  };
+
+  const handleSetPlanByUid = () => {
+    const trimmed = planUid.trim();
+    if (!trimmed) return;
+    void setUserPlan({ uid: trimmed, planId: planSelection });
+    setPlanUid('');
   };
 
   return (
@@ -56,6 +68,43 @@ const AdminUsersPage = () => {
             disabled={isUpdating || !manualUid.trim()}
           >
             정지
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.item}>
+        <header className={styles.itemHeader}>
+          <strong className={styles.nickname}>UID로 플랜 변경</strong>
+        </header>
+        <p className={styles.subText}>
+          결제 흐름을 거치지 않고 entitlement만 직접 변경합니다 (운영자 보정용).
+        </p>
+        <div className={styles.actions}>
+          <input
+            type="text"
+            placeholder="user uid"
+            className={styles.reason}
+            value={planUid}
+            onChange={(e) => setPlanUid(e.target.value)}
+            disabled={isPlanUpdating}
+          />
+          <select
+            className={styles.reason}
+            value={planSelection}
+            onChange={(e) => setPlanSelection(e.target.value as PlanId)}
+            disabled={isPlanUpdating}
+            aria-label="변경할 플랜"
+          >
+            <option value="free">free</option>
+            <option value="premium">premium</option>
+          </select>
+          <button
+            type="button"
+            className={styles.approve}
+            onClick={handleSetPlanByUid}
+            disabled={isPlanUpdating || !planUid.trim()}
+          >
+            적용
           </button>
         </div>
       </div>

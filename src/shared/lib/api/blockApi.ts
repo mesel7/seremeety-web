@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
 import {
   createBlock,
   getBlockedUserIds,
@@ -22,7 +23,7 @@ export const blockApi = baseApi.injectEndpoints({
           const set = await getBlockedUserIds(uid);
           return { data: Array.from(set) };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: ['Block'],
@@ -39,7 +40,7 @@ export const blockApi = baseApi.injectEndpoints({
           const blocked = await isBlockedBetween(uid, otherUserId);
           return { data: blocked };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: (_r, _e, otherUserId) => [
@@ -48,7 +49,7 @@ export const blockApi = baseApi.injectEndpoints({
       ],
     }),
 
-    block: builder.mutation<void, BlockArgs>({
+    block: builder.mutation<null, BlockArgs>({
       // Optimistic update: 차단 즉시 헤더 차단 버튼이 사라지도록 캐시에 추가.
       async onQueryStarted({ blockedUserId }, { dispatch, queryFulfilled }) {
         const patch = dispatch(
@@ -68,12 +69,12 @@ export const blockApi = baseApi.injectEndpoints({
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) {
-            return { error: new Error('not_authenticated') };
+            return { error: errorWithCode('not_authenticated') };
           }
           await createBlock(uid, blockedUserId, reason);
-          return { data: undefined };
+          return { data: null };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       // 차단 시 추천도 다시 페치되도록 Recommendation도 무효화.

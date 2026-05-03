@@ -1,5 +1,6 @@
 import { auth } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
+import { serializeError } from '@/shared/lib/api/serializeError';
 import { getUserDataByUid } from '@/shared/lib/firebase/users';
 import { getTodayRecommendations } from '@/shared/lib/firebase/recommendations';
 import type { UserProfile } from '@/shared/types/domain';
@@ -21,7 +22,7 @@ export const recommendationApi = baseApi.injectEndpoints({
           const data = await getTodayRecommendations(me);
           return { data };
         } catch (error) {
-          return { error: error as Error };
+          return { error: serializeError(error) };
         }
       },
       providesTags: ['Recommendation'],

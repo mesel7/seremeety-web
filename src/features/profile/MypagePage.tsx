@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Music4, Settings } from 'lucide-react';
+import { Crown, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { useGetMeQuery } from '@/shared/lib/api/profileApi';
+import { useGetMyEntitlementQuery } from '@/shared/lib/api/entitlementApi';
 import Loading from '@/shared/components/common/loading/Loading';
 import Header from '@/shared/components/common/Header';
 import MyProfilePreview from '@/features/profile/components/mypage/MyProfilePreview';
@@ -21,6 +22,8 @@ const getProfileStats = (userProfile: UserProfile): ProfileStats => ({
 
 const MypagePage = () => {
   const { data: userProfile, isLoading: isFetching } = useGetMeQuery();
+  const { data: entitlement } = useGetMyEntitlementQuery();
+  const isPremium = entitlement?.planId === 'premium';
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -36,12 +39,13 @@ const MypagePage = () => {
         menuAriaLabel="마이페이지 메뉴"
         menu={
           <>
-            {userProfile && (
-              <Link href="/shop" aria-label={`상점 이동 (보유 음표: ${userProfile.coin})`}>
-                <Music4 aria-hidden="true" size="1em" />
-                {userProfile.coin}
-              </Link>
-            )}
+            <Link
+              href="/plan"
+              aria-label={isPremium ? '요금제 (현재: 프리미엄)' : '요금제'}
+              className={isPremium ? styles.planLinkActive : undefined}
+            >
+              <Crown aria-hidden="true" size="1em" />
+            </Link>
             <Link
               aria-label="설정"
               href="/setting"
