@@ -5,6 +5,7 @@ import { Users } from 'lucide-react';
 import {
   useGetSuspendedUsersQuery,
   useSetUserPlanMutation,
+  useSetUserRoleMutation,
   useSetUserStatusMutation,
 } from '@/shared/lib/api/adminApi';
 import EmptyState from '@/shared/components/common/empty-state/EmptyState';
@@ -17,9 +18,12 @@ const AdminUsersPage = () => {
   const { data: suspended = [], isLoading } = useGetSuspendedUsersQuery();
   const [setUserStatus, { isLoading: isUpdating }] = useSetUserStatusMutation();
   const [setUserPlan, { isLoading: isPlanUpdating }] = useSetUserPlanMutation();
+  const [setUserRole, { isLoading: isRoleUpdating }] = useSetUserRoleMutation();
   const [manualUid, setManualUid] = useState('');
   const [planUid, setPlanUid] = useState('');
   const [planSelection, setPlanSelection] = useState<PlanId>('premium');
+  const [roleUid, setRoleUid] = useState('');
+  const [roleSelection, setRoleSelection] = useState<'admin' | 'user'>('admin');
 
   if (isLoading) {
     return <Loading />;
@@ -37,6 +41,13 @@ const AdminUsersPage = () => {
     if (!trimmed) return;
     void setUserPlan({ uid: trimmed, planId: planSelection });
     setPlanUid('');
+  };
+
+  const handleSetRoleByUid = () => {
+    const trimmed = roleUid.trim();
+    if (!trimmed) return;
+    void setUserRole({ uid: trimmed, role: roleSelection });
+    setRoleUid('');
   };
 
   return (
@@ -68,6 +79,43 @@ const AdminUsersPage = () => {
             disabled={isUpdating || !manualUid.trim()}
           >
             정지
+          </button>
+        </div>
+      </div>
+
+      <div className={styles.item}>
+        <header className={styles.itemHeader}>
+          <strong className={styles.nickname}>관리자 권한 부여 / 회수</strong>
+        </header>
+        <p className={styles.subText}>
+          최초 관리자는 functions/scripts/grant-admin.mjs CLI 로 1회 seed 한 후, 이후 admin 추가/제거는 여기서 처리합니다. admin 부여 시 onboarding 상태가 자동으로 approved 로 전이되어 곧장 /admin 진입 가능.
+        </p>
+        <div className={styles.actions}>
+          <input
+            type="text"
+            placeholder="user uid"
+            className={styles.reason}
+            value={roleUid}
+            onChange={(e) => setRoleUid(e.target.value)}
+            disabled={isRoleUpdating}
+          />
+          <select
+            className={styles.reason}
+            value={roleSelection}
+            onChange={(e) => setRoleSelection(e.target.value as 'admin' | 'user')}
+            disabled={isRoleUpdating}
+            aria-label="부여할 권한"
+          >
+            <option value="admin">admin (관리자)</option>
+            <option value="user">user (일반 사용자)</option>
+          </select>
+          <button
+            type="button"
+            className={styles.approve}
+            onClick={handleSetRoleByUid}
+            disabled={isRoleUpdating || !roleUid.trim()}
+          >
+            적용
           </button>
         </div>
       </div>

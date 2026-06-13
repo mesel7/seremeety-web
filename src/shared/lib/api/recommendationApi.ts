@@ -6,6 +6,7 @@ import { getTodayRecommendations } from '@/shared/lib/firebase/recommendations';
 import type { UserProfile } from '@/shared/types/domain';
 
 export const recommendationApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     getTodayRecommendations: builder.query<UserProfile[], void>({
       async queryFn() {

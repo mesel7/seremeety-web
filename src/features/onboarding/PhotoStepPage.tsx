@@ -7,24 +7,27 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useAppSelector } from '@/shared/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/store/hooks';
 import { selectAuthUid } from '@/shared/lib/store/authSlice';
 import { getProfileByUserId } from '@/shared/lib/firebase/profiles';
 import {
   createProfilePhoto,
   getProfilePhotosByUserId,
 } from '@/shared/lib/firebase/profilePhotos';
-import { setOnboardingStatus } from '@/shared/lib/firebase/usersV2';
+import { goToPreviousOnboardingStep } from '@/shared/lib/onboarding/stepNavigation';
+import { transitionOnboardingStatus } from '@/shared/lib/onboarding/transitionOnboardingStatus';
 import { writePhotoToLegacyUser } from '@/shared/lib/firebase/legacyBridge';
 import { compressImage, dataURLToFile, uploadImageToStorage } from '@/shared/lib/media';
 import CropperModal from '@/shared/components/common/cropper/CropperModal';
 import Button from '@/shared/components/common/button/Button';
 import sereMeetyLogo from '@/shared/assets/images/seremeety-logo.png';
+import OnboardingFooter from './OnboardingFooter';
 import type { ProfilePhoto } from '@/shared/types/model/photo';
 import styles from './PhotoStepPage.module.scss';
 
 const PhotoStepPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const uid = useAppSelector(selectAuthUid);
 
   const [profileId, setProfileId] = useState<string | null>(null);
@@ -32,6 +35,7 @@ const PhotoStepPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [isGoingBack, setIsGoingBack] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
 
@@ -126,7 +130,7 @@ const PhotoStepPage = () => {
     }
     setIsAdvancing(true);
     try {
-      await setOnboardingStatus(uid, 'preference_required');
+      await transitionOnboardingStatus(dispatch, uid, 'preference_required');
       router.replace('/onboarding/preferences');
     } catch (err) {
       console.error(err);
@@ -135,9 +139,24 @@ const PhotoStepPage = () => {
     }
   };
 
+  const handleBack = async () => {
+    if (!uid || isAdvancing || isUploading || isGoingBack) return;
+    setIsGoingBack(true);
+    try {
+      const target = await goToPreviousOnboardingStep(dispatch, uid, 'photo_required');
+      if (target) {
+        router.replace(target.href);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('이전 단계로 이동 중 오류가 발생했어요.');
+      setIsGoingBack(false);
+    }
+  };
+
   return (
     <section className={styles.root}>
-      <p className={styles.step}>STEP 3 / 6</p>
+      <p className={styles.step}>STEP 2 / 5</p>
       <h1 className={styles.title}>프로필 사진</h1>
       <p className={styles.description}>
         대표 사진을 한 장 등록해주세요. 정사각형으로 잘라 올라갑니다.
@@ -185,6 +204,13 @@ const PhotoStepPage = () => {
             mainPhoto && !isAdvancing && !isUploading ? () => void handleNext() : undefined
           }
         />
+        <Button
+          type="secondary"
+          text={isGoingBack ? '이동 중...' : '이전 단계'}
+          onClick={
+            isGoingBack || isAdvancing || isUploading ? undefined : () => void handleBack()
+          }
+        />
       </div>
 
       {openCropper && selectedImage && (
@@ -195,6 +221,7 @@ const PhotoStepPage = () => {
           handleCropComplete={handleCropComplete}
         />
       )}
+      <OnboardingFooter />
     </section>
   );
 };

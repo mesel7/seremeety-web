@@ -13,7 +13,7 @@ import React from 'react';
 import LoginLogo from '@/features/auth/components/LoginLogo';
 import { toIntlPhoneNumber, toLocalePhoneNumber } from '@/shared/lib/format';
 import { signInWithPhoneNumber } from 'firebase/auth';
-import { auth, setupRecaptchaVerifier } from '@/firebase';
+import { auth, setupRecaptchaVerifier, teardownRecaptchaVerifier } from '@/firebase';
 import Button from '@/shared/components/common/button/Button';
 import Modal, { type ModalConfig } from '@/shared/components/common/modal/Modal';
 import styles from './LoginPage.module.scss';
@@ -28,6 +28,11 @@ const LoginPage = () => {
     if (recaptchaRef.current) {
       setupRecaptchaVerifier(recaptchaRef.current);
     }
+    // unmount 시점에 verifier 의 DOM 컨테이너가 사라지므로 같이 cleanup.
+    // 다음 mount 에서 setupRecaptchaVerifier 가 새 verifier 를 만든다.
+    return () => {
+      teardownRecaptchaVerifier();
+    };
   }, []);
 
   const handlePhoneNumberChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {

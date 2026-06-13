@@ -1,0 +1,81 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: $page-padding;
+  padding-bottom: $page-bottom-padding;
+  gap: $size-16;
+  box-sizing: border-box;
+}
+
+.loading {
+  min-height: 40svh;
+}
+
+.summary {
+  margin: 0;
+  font-size: $size-14;
+  color: $color-text-secondary;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $size-16;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+  padding: $size-16;
+  border: $border-1 solid $color-border-subtle;
+  border-radius: $size-16;
+  background-color: $color-white;
+}
+
+.cardWrap {
+  width: 100%;
+}
+
+.actions {
+  display: flex;
+  gap: $size-12;
+  justify-content: flex-end;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: $size-44;
+  height: $size-44;
+  border-radius: $radius-9999;
+  border: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  @include hover-capable {
+    opacity: 0.92;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.action--pass {
+  background-color: $color-border-subtle;
+  color: $color-text-secondary;
+}
+
+.action--like {
+  background: $gradient-brand;
+  color: $color-white;
+  box-shadow: $shadow-light;
+}

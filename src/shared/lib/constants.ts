@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, UserRound } from 'lucide-react';
+import { Heart, MessageCircle, Sparkles, UserRound } from 'lucide-react';
 import { placeList } from '@/shared/data/places';
 import { universityList } from '@/shared/data/universities';
 import type {
@@ -30,6 +30,11 @@ export const menuItems: MenuItemConfig[] = [
     icon: Heart,
     dataRoute: '/matching',
     label: 'DISCOVER',
+  },
+  {
+    icon: Sparkles,
+    dataRoute: '/likes',
+    label: 'LIKES',
   },
   {
     icon: MessageCircle,

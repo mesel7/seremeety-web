@@ -1,76 +1,58 @@
 @use '@/styles/base' as *;
 
-.custom-radio {
+.root {
   display: inline-flex;
   align-items: center;
+  gap: $size-8;
   cursor: pointer;
-  font-size: $size-16;
-  margin-right: $size-16;
   user-select: none;
-  position: relative;
-
-  input[type="radio"] {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-  }
-
-  input[type="radio"]:focus-visible + .custom-radio__circle {
-    outline: $focus-ring-width solid $color-brand;
-    outline-offset: $focus-ring-offset;
-  }
-
-  &__circle {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: $size-16;
-    height: $size-16;
-    border-radius: 50%;
-    border: $border-1 solid $color-brand;
-    margin-right: $size-8;
-    background-color: $color-white;
-    transition: background-color 0.2s ease;
-  }
-
-  &__check {
-    display: none;
-    position: absolute;
-    left: 4.8px;
-    bottom: 3.2px;
-    width: 4.8px;
-    height: 9.6px;
-    border: solid $color-white;
-    border-width: 0 1.6px 1.6px 0;
-    transform: rotate(45deg);
-  }
-
-  &--checked {
-    .custom-radio__circle {
-      background-color: $color-brand;
-    }
-
-    .custom-radio__check {
-      display: block;
-    }
-  }
+  font-size: $size-16;
 
   &--disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+}
 
-    * {
-      cursor: not-allowed;
-      pointer-events: none;
-    }
+// input 자체를 동그라미로 styling. 가운데 점은 ::before pseudo + grid place-content.
+// absolute 같은 layout hack 없이 native control 그대로 사용 — 라벨 어디 클릭해도
+// 자연스럽게 input이 토글된다 (label이 input을 wrap).
+.input {
+  width: $size-16;
+  height: $size-16;
+  border: $border-1 solid $color-brand;
+  border-radius: 50%;
+  background-color: $color-white;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: background-color 0.15s ease;
+
+  &::before {
+    content: '';
+    width: $size-8;
+    height: $size-8;
+    border-radius: 50%;
+    background-color: $color-white;
+    transform: scale(0);
+    transition: transform 0.15s ease;
   }
 
-  &__label {
-    font-size: $size-16;
+  &:checked {
+    background-color: $color-brand;
   }
+
+  &:checked::before {
+    transform: scale(1);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.label {
+  font-size: $size-16;
 }

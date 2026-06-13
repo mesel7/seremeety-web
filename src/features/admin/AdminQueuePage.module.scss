@@ -43,6 +43,15 @@
   font-weight: 700;
 }
 
+.tag {
+  font-size: $size-12;
+  padding: $size-2 $size-8;
+  border-radius: $radius-9999;
+  background-color: $color-brand-soft;
+  color: $color-text-primary;
+  font-weight: 600;
+}
+
 .meta {
   font-size: $size-12;
   color: $color-text-secondary;
@@ -72,6 +81,59 @@
   }
 }
 
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: $size-8;
+}
+
+.photoCell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: $size-5;
+  overflow: hidden;
+  border: $border-1 solid $color-border-subtle;
+  margin: 0;
+}
+
+.photoImage {
+  object-fit: cover;
+}
+
+.photoBadge {
+  position: absolute;
+  left: $size-4;
+  bottom: $size-4;
+  display: inline-flex;
+  align-items: center;
+  gap: $size-4;
+  padding: $size-2 $size-5;
+  border-radius: $size-5;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.6);
+  color: $color-white;
+
+  &--pending {
+    background: rgba(247, 200, 90, 0.92);
+    color: #2d2d2d;
+  }
+
+  &--rejected {
+    background: rgba(247, 60, 80, 0.85);
+  }
+
+  &--approved {
+    background: rgba(48, 138, 96, 0.85);
+  }
+}
+
+.mainTick {
+  font-size: 11px;
+  line-height: 1;
+}
+
+// legacy single-line layout (사용자 큐 / 신고 / 사진 단건 페이지에서 재사용).
 .media {
   position: relative;
   width: 120px;
@@ -91,6 +153,35 @@
   gap: $size-8;
   align-items: center;
   margin-top: $size-8;
+}
+
+.actionsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $size-8;
+  margin-top: $size-8;
+}
+
+.actionsRow {
+  display: flex;
+  gap: $size-8;
+  justify-content: flex-end;
+}
+
+.reasonArea {
+  width: 100%;
+  padding: $size-8 $size-10;
+  border: $border-1 solid $color-border-muted;
+  border-radius: $size-5;
+  font-size: $size-14;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    outline: 2px solid $color-brand;
+    outline-offset: 1px;
+  }
 }
 
 .reason {
@@ -114,7 +205,7 @@
   color: $color-white;
   border: 0;
   border-radius: $size-5;
-  font-size: $size-12;
+  font-size: $size-14;
   font-weight: 600;
   cursor: pointer;
 
@@ -131,7 +222,7 @@
   color: $color-brand;
   border: $border-1 solid $color-brand;
   border-radius: $size-5;
-  font-size: $size-12;
+  font-size: $size-14;
   font-weight: 600;
   cursor: pointer;
 

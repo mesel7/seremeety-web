@@ -62,7 +62,7 @@ export const writeProfileStatusToLegacyUser = async (
   await updateUserDataByUid(uid, { profileStatus: isApproved ? 1 : 0 });
 };
 
-// Phase 5-A: Match가 생성되면 기존 chat_rooms에도 같은 페어로 채팅방을 만들어
+// Phase 5-A: Match가 생성되면 기존 chatRooms에도 같은 페어로 채팅방을 만들어
 // ChatList/ChatRoom 페이지가 변경 없이 동작하도록 dual-write한다.
 // Phase 6 RTK Query 마이그레이션 시 chat은 matches 기반으로 전환되며 폐기.
 export const writeMatchToLegacyChatRoom = async (

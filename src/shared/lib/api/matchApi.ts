@@ -4,6 +4,7 @@ import { serializeError } from '@/shared/lib/api/serializeError';
 import { getActiveMatchByUsers } from '@/shared/lib/firebase/matches';
 
 export const matchApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     // 특정 상대와 active match 존재 여부. ProfilePage에서 채팅 이동 버튼 노출에 사용.
     getActiveMatchExists: builder.query<boolean, string>({

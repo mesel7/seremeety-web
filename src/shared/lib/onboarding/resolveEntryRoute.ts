@@ -12,6 +12,7 @@ export type AppEntryRoute =
   | '/onboarding/review-pending'
   | '/onboarding/rejected'
   | '/matching'
+  | '/admin'
   | '/account/suspended'
   | '/account/deleted';
 
@@ -50,7 +51,8 @@ export function resolveEntryRoute(state: UserEntryState): AppEntryRoute {
     case 'review_rejected':
       return '/onboarding/rejected';
     case 'approved':
-      return '/matching';
+      // admin은 운영 콘솔로 진입. 일반 유저는 추천 피드.
+      return state.user.role === 'admin' ? '/admin' : '/matching';
     default:
       return '/onboarding/bootstrap';
   }

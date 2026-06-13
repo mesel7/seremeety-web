@@ -20,13 +20,7 @@ const CustomRadio = ({
   disabled = false,
 }: CustomRadioProps) => {
   return (
-    <label
-      className={cx(
-        styles['custom-radio'],
-        checked && styles['custom-radio--checked'],
-        disabled && styles['custom-radio--disabled']
-      )}
-    >
+    <label className={cx(styles.root, disabled && styles['root--disabled'])}>
       <input
         type="radio"
         name={name}
@@ -34,11 +28,9 @@ const CustomRadio = ({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
+        className={styles.input}
       />
-      <span className={styles['custom-radio__circle']}>
-        <span className={styles['custom-radio__check']} />
-      </span>
-      <span className={styles['custom-radio__label']}>{label}</span>
+      <span className={styles.label}>{label}</span>
     </label>
   );
 };

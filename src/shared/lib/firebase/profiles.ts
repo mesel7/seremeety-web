@@ -11,6 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { toPlainTimestamps } from '@/shared/lib/firebase/serialize';
 import type { Profile, ProfileStatus } from '@/shared/types/model/profile';
 
 const COLLECTION = 'profiles';
@@ -22,7 +23,7 @@ export const getProfileByUserId = async (userId: string): Promise<Profile | null
     return null;
   }
   const docSnap = snap.docs[0];
-  return { id: docSnap.id, ...(docSnap.data() as Omit<Profile, 'id'>) };
+  return toPlainTimestamps({ id: docSnap.id, ...(docSnap.data() as Omit<Profile, 'id'>) });
 };
 
 // admin 검수 큐용. status로 필터한 모든 프로필을 반환한다.
@@ -32,10 +33,9 @@ export const getProfilesByStatus = async (
 ): Promise<Profile[]> => {
   const q = query(collection(db, COLLECTION), where('status', '==', status));
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({
-    id: d.id,
-    ...(d.data() as Omit<Profile, 'id'>),
-  }));
+  return snap.docs.map((d) =>
+    toPlainTimestamps({ id: d.id, ...(d.data() as Omit<Profile, 'id'>) })
+  );
 };
 
 export const getProfileById = async (profileId: string): Promise<Profile | null> => {
@@ -43,7 +43,7 @@ export const getProfileById = async (profileId: string): Promise<Profile | null>
   if (!docSnap.exists()) {
     return null;
   }
-  return { id: docSnap.id, ...(docSnap.data() as Omit<Profile, 'id'>) };
+  return toPlainTimestamps({ id: docSnap.id, ...(docSnap.data() as Omit<Profile, 'id'>) });
 };
 
 export const createDraftProfile = async (

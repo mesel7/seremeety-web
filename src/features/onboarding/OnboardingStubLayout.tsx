@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react';
 import Button from '@/shared/components/common/button/Button';
+import OnboardingFooter from './OnboardingFooter';
 import styles from './OnboardingStubLayout.module.scss';
 
 interface OnboardingStubLayoutProps {
@@ -33,31 +34,34 @@ const OnboardingStubLayout = ({
   secondaryAction,
 }: OnboardingStubLayoutProps) => {
   return (
-    <section className={styles.root} aria-labelledby="onboarding-title">
-      {step && <p className={styles.step}>{step}</p>}
-      <h1 className={styles.title} id="onboarding-title">
-        {title}
-      </h1>
-      {description && <p className={styles.description}>{description}</p>}
-      {children && <div className={styles.body}>{children}</div>}
-      <div className={styles.actions}>
-        {primaryAction && (
-          <Button
-            text={primaryAction.label}
-            href={primaryAction.href}
-            onClick={primaryAction.disabled ? undefined : primaryAction.onClick}
-          />
-        )}
-        {secondaryAction && (
-          <Button
-            text={secondaryAction.label}
-            href={secondaryAction.href}
-            onClick={secondaryAction.onClick}
-            type="secondary"
-          />
-        )}
-      </div>
-    </section>
+    <>
+      <section className={styles.root} aria-labelledby="onboarding-title">
+        {step && <p className={styles.step}>{step}</p>}
+        <h1 className={styles.title} id="onboarding-title">
+          {title}
+        </h1>
+        {description && <p className={styles.description}>{description}</p>}
+        {children && <div className={styles.body}>{children}</div>}
+        <div className={styles.actions}>
+          {primaryAction && (
+            <Button
+              text={primaryAction.label}
+              href={primaryAction.href}
+              onClick={primaryAction.disabled ? undefined : primaryAction.onClick}
+            />
+          )}
+          {secondaryAction && (
+            <Button
+              text={secondaryAction.label}
+              href={secondaryAction.href}
+              onClick={secondaryAction.onClick}
+              type="secondary"
+            />
+          )}
+        </div>
+      </section>
+      <OnboardingFooter />
+    </>
   );
 };
 

@@ -13,6 +13,7 @@ interface ReportArgs {
 }
 
 export const reportApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     createReport: builder.mutation<null, ReportArgs>({
       async queryFn(args) {

@@ -63,3 +63,15 @@ export const getReactionsFromUser = async (
     toPlainTimestamps({ id: d.id, ...(d.data() as Omit<Reaction, 'id'>) })
   );
 };
+
+// toUserId로 받은 모든 반응. 받은 좋아요 페이지에서 사용한다.
+// firestore.rules에서 toUserId == auth.uid에 read 권한이 부여되어야 동작.
+export const getReactionsToUser = async (
+  toUserId: string
+): Promise<Reaction[]> => {
+  const q = query(collection(db, COLLECTION), where('toUserId', '==', toUserId));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) =>
+    toPlainTimestamps({ id: d.id, ...(d.data() as Omit<Reaction, 'id'>) })
+  );
+};

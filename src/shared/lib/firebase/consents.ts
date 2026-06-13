@@ -10,6 +10,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { toPlainTimestamps } from '@/shared/lib/firebase/serialize';
 import type { Consent } from '@/shared/types/model/consent';
 
 const COLLECTION = 'consents';
@@ -26,7 +27,7 @@ export const getLatestConsentByUserId = async (userId: string): Promise<Consent 
     return null;
   }
   const docSnap = snap.docs[0];
-  return { id: docSnap.id, ...(docSnap.data() as Omit<Consent, 'id'>) };
+  return toPlainTimestamps({ id: docSnap.id, ...(docSnap.data() as Omit<Consent, 'id'>) });
 };
 
 export const createConsent = async (

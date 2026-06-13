@@ -41,6 +41,27 @@ export const getPhotosByStatus = async (
   );
 };
 
+// 한 사용자의 pending 사진을 모두 approved로 일괄 전이. admin 큐의 단일 "승인"
+// 액션에서 프로필 + 그 사용자의 pending 사진들을 한꺼번에 처리할 때 사용.
+export const approvePendingPhotosForUser = async (
+  userId: string,
+  reviewerUid: string
+): Promise<void> => {
+  const photos = await getProfilePhotosByUserId(userId);
+  const pending = photos.filter((p) => p.status === 'pending');
+  if (pending.length === 0) return;
+  const batch = writeBatch(db);
+  for (const p of pending) {
+    batch.update(doc(db, COLLECTION, p.id), {
+      status: 'approved',
+      reviewedAt: serverTimestamp(),
+      reviewedBy: reviewerUid,
+      updatedAt: serverTimestamp(),
+    });
+  }
+  await batch.commit();
+};
+
 export const createProfilePhoto = async (
   userId: string,
   profileId: string,

@@ -23,7 +23,7 @@ export const subscribeToChatRooms = (
     return () => undefined;
   }
 
-  const chatRoomRef = collection(db, 'chat_rooms');
+  const chatRoomRef = collection(db, 'chatRooms');
   const q = query(
     chatRoomRef,
     where('users', 'array-contains', currentUid),
@@ -41,13 +41,13 @@ export const subscribeToChatRooms = (
 };
 
 export const createChatRoom = async (newChatRoom: NewChatRoom): Promise<string> => {
-  const chatRoomsRef = collection(db, 'chat_rooms');
+  const chatRoomsRef = collection(db, 'chatRooms');
   const docRef = await addDoc(chatRoomsRef, newChatRoom);
   return docRef.id;
 };
 
 export const getChatRoomById = async (chatRoomId: string): Promise<ChatRoomRecord | null> => {
-  const docRef = doc(db, 'chat_rooms', chatRoomId);
+  const docRef = doc(db, 'chatRooms', chatRoomId);
   const docSnap = await getDoc(docRef);
 
   if (!docSnap.exists()) {
@@ -61,7 +61,7 @@ export const subscribeToChatRoomMessages = (
   chatRoomId: string,
   onMessagesChange: (messages: ChatMessageRecord[]) => void
 ): (() => void) => {
-  const messagesRef = collection(db, 'chat_rooms', chatRoomId, 'messages');
+  const messagesRef = collection(db, 'chatRooms', chatRoomId, 'messages');
 
   return onSnapshot(query(messagesRef, orderBy('sentAt', 'asc')), (snapshot) => {
     const messages = snapshot.docs.map((messageDoc) =>
@@ -76,9 +76,9 @@ export const createMessage = async (
   chatRoomId: string,
   newMessageData: NewChatMessage
 ): Promise<void> => {
-  await addDoc(collection(db, 'chat_rooms', chatRoomId, 'messages'), newMessageData);
+  await addDoc(collection(db, 'chatRooms', chatRoomId, 'messages'), newMessageData);
 
-  const chatRoomRef = doc(db, 'chat_rooms', chatRoomId);
+  const chatRoomRef = doc(db, 'chatRooms', chatRoomId);
   await updateDoc(chatRoomRef, {
     lastMessage: { text: newMessageData.text, sentAt: newMessageData.sentAt },
   });

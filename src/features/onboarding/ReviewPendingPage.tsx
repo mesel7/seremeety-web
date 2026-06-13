@@ -7,7 +7,7 @@ import OnboardingStubLayout from './OnboardingStubLayout';
 const ReviewPendingPage = () => {
   return (
     <OnboardingStubLayout
-      step="STEP 6 / 6"
+      step="STEP 5 / 5"
       title="심사 중"
       description="제출하신 프로필을 관리자가 검토하고 있어요. 보통 24시간 이내에 알려드립니다."
     />

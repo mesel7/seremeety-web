@@ -8,6 +8,7 @@ import type { ProfilePhoto } from '@/shared/types/model/photo';
 // `Photo` 태그를 명시적으로 invalidate해 다른 소비자(MyProfilePreview 완성도 계산,
 // ProfilePage 추가 사진 표시)가 새 데이터를 받도록 한다.
 export const photoApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     getProfilePhotos: builder.query<ProfilePhoto[], string>({
       async queryFn(userId) {

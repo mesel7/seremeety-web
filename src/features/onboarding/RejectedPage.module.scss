@@ -1,0 +1,65 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $size-16;
+  padding: $size-32 $page-padding;
+  padding-bottom: $page-bottom-padding;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: $size-24;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.description {
+  font-size: $size-15;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.reasonBox {
+  display: flex;
+  flex-direction: column;
+  gap: $size-4;
+  padding: $size-12 $size-16;
+  border-left: 4px solid $color-accent-pink;
+  background-color: rgba($color-accent-pink, 0.18);
+  border-radius: $size-5;
+}
+
+.reasonLabel {
+  font-size: $size-12;
+  font-weight: 600;
+  color: $color-accent-pink;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.reasonText {
+  font-size: $size-15;
+  color: $color-text-primary;
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.hint {
+  font-size: $size-14;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+  margin-top: $size-12;
+}

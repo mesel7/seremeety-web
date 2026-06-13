@@ -13,6 +13,7 @@ interface BlockArgs {
 }
 
 export const blockApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     // 내가 차단한 사용자 uid 목록. ProfilePage 차단 상태 표시에 사용.
     getMyBlockedUserIds: builder.query<string[], void>({

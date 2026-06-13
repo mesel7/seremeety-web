@@ -1,0 +1,47 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  padding: $page-padding;
+  padding-bottom: $page-bottom-padding;
+  gap: $size-24;
+  box-sizing: border-box;
+}
+
+.loading {
+  min-height: 40svh;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+}
+
+.heading {
+  margin: 0;
+  font-family: $font-family-heading;
+  font-size: $size-18;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $size-12;
+}
+
+.card {
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

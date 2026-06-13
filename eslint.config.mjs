@@ -11,6 +11,7 @@ const config = [
       'out/**',
       'next-env.d.ts',
       'tsconfig.tsbuildinfo',
+      'functions/**',
     ],
   },
   ...nextCoreWebVitals,

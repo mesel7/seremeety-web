@@ -129,6 +129,11 @@ const ProfilePage = () => {
             type === 'like' ? '좋아요 한도' : '슈퍼좋아요 한도',
             '오늘의 한도를 모두 사용했어요. 내일 다시 시도해주세요'
           );
+        } else if (result.reason === 'blocked') {
+          openAlert(
+            '전송 불가',
+            '차단된 사용자에게는 반응을 보낼 수 없어요'
+          );
         }
         return;
       }

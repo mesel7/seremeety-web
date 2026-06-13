@@ -1,0 +1,230 @@
+rules_version = '2';
+
+// Phase 3-B — collection별 접근 제어.
+//
+// 원칙:
+//  1. reactions / matches: server(Functions admin SDK)만 write (Phase 3-A 유지).
+//  2. 민감/운영 필드는 본인이 못 바꾼다:
+//     - users.role  : self로 'admin' 승격 불가 (admin만).
+//     - users.status: self로 정지 해제(suspended/deleted → active) 불가 (admin만).
+//     - users.onboardingStatus: self로 'approved' 점프 불가 (admin 승인만, legacy grandfather 예외).
+//     - profiles.status / profilePhotos.status: self로 'approved'/'rejected' 불가 (admin 검수만).
+//       단 본인은 심사 제출(draft/rejected → pending)과 사진 soft-delete(→ deleted)는 가능.
+//  3. 본인 데이터는 본인(+admin)만 read: preferences / consents / entitlements / payments /
+//     identityVerifications / recommendationLogs / blocks / reports.
+//  4. users / profiles / profilePhotos read는 매칭·채팅이 상대 데이터를 읽어야 하므로 당분간
+//     authenticated로 열어 둔다. (읽기 강화는 클라이언트 쿼리에 status 필터를 추가하는 후속 작업.)
+//  5. admin 판정은 호출자 users 문서의 role로 한다(isAdmin). admin의 클라이언트 mutation은
+//     이 경로로 통과한다. (Phase 3-C에서 Custom Claims로 강화 예정.)
+//
+// 알려진 미해결(Phase 3-B 후속):
+//  - entitlements / payments WRITE는 mock 결제가 아직 클라이언트에서 일어나 광범위 허용
+//    상태다(self로 premium 한도 자가 부여 가능). 결제 완료를 Functions(callable)로 이전한 뒤
+//    server-only로 좁힌다. READ는 본 단계에서 self/admin으로 좁혔다.
+//
+// 주의: wildcard `{path=**}` match와 specific path match는 OR로 결합되므로 wildcard를 쓰지 않는다.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== helpers =====
+    function isSignedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function isSelf(userId) { return isSignedIn() && uid() == userId; }
+    // 문서의 userId 필드가 호출자인지 (기존 문서 기준 — read/update/delete)
+    function ownsField() { return isSignedIn() && resource.data.userId == uid(); }
+    // 생성하려는 문서의 userId 필드가 호출자인지 (create)
+    function createsOwn() { return isSignedIn() && request.resource.data.userId == uid(); }
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(uid()))
+        && get(/databases/$(database)/documents/users/$(uid())).data.role == 'admin';
+    }
+
+    // ===== Phase 3-A: server-only collections =====
+
+    // reactions: Functions(admin SDK)만 write. client는 본인 관련 reaction만 read.
+    match /reactions/{reactionId} {
+      allow read: if isSignedIn()
+        && (resource.data.fromUserId == uid() || resource.data.toUserId == uid());
+      allow write: if false;
+    }
+
+    // matches: Functions만 write. client는 본인이 users에 포함된 match만 read.
+    match /matches/{matchId} {
+      allow read: if isSignedIn() && uid() in resource.data.users;
+      allow write: if false;
+    }
+
+    // ===== users =====
+    // read: 매칭/채팅이 상대 닉네임·사진을 읽어야 해 authenticated 유지.
+    // write: 본인 문서만. role/status/onboardingStatus의 권한 상승은 차단(아래 조건).
+    match /users/{userId} {
+      allow read: if isSignedIn();
+
+      // 신규 가입(createNewUserV2): role='user', status='active'로만 생성.
+      allow create: if isSelf(userId)
+        && request.resource.data.role == 'user'
+        && request.resource.data.status == 'active';
+
+      // 주의: legacy/부분 문서는 role/status/onboardingStatus 필드가 없을 수 있어
+      // 누락 필드 접근으로 deny되지 않도록 .get(field, default)로 읽는다.
+      allow update: if isAdmin() || (
+        isSelf(userId)
+        // role: self는 'user'만 유지/설정 (admin 승격 불가)
+        && (request.resource.data.get('role', 'user') == 'user'
+            || request.resource.data.get('role', 'user') == resource.data.get('role', 'user'))
+        // status: 변경 없음 OR active로 설정하되 suspended/deleted에서의 자가 해제는 불가
+        && (request.resource.data.get('status', 'active') == resource.data.get('status', 'active')
+            || (request.resource.data.get('status', 'active') == 'active'
+                && resource.data.get('status', 'active') != 'suspended'
+                && resource.data.get('status', 'active') != 'deleted'))
+        // onboardingStatus: self는 'approved' 점프 불가 (이미 approved거나 legacy 무필드는 예외)
+        && (request.resource.data.get('onboardingStatus', '') != 'approved'
+            || resource.data.get('onboardingStatus', '') == 'approved'
+            || !('onboardingStatus' in resource.data))
+      );
+
+      // 가입 그만두기(cancelSignup) — 본인 문서 삭제 허용. admin도 가능.
+      allow delete: if isSelf(userId) || isAdmin();
+    }
+
+    // ===== profiles =====
+    match /profiles/{profileId} {
+      // 후속(3-B): approved || self || admin 로 좁히려면 클라이언트 공개 조회 쿼리에
+      // where(status == 'approved') 추가 필요. 현재 매칭/상세가 status 무관 조회라 authenticated 유지.
+      allow read: if isSignedIn();
+
+      allow create: if createsOwn() && request.resource.data.status == 'draft';
+
+      allow update: if isAdmin() || (
+        ownsField()
+        && request.resource.data.userId == resource.data.userId   // 소유자 변경 불가
+        // status: 변경 없음 OR 본인 심사 제출(draft/rejected → pending). approved/rejected는 admin만.
+        && (request.resource.data.status == resource.data.status
+            || (request.resource.data.status == 'pending'
+                && (resource.data.status == 'draft' || resource.data.status == 'rejected')))
+      );
+
+      allow delete: if ownsField() || isAdmin();
+    }
+
+    // ===== profilePhotos =====
+    match /profilePhotos/{photoId} {
+      allow read: if isSignedIn();
+
+      // 신규 사진은 항상 'pending'으로 생성 (자가 승인 불가).
+      allow create: if createsOwn() && request.resource.data.status == 'pending';
+
+      allow update: if isAdmin() || (
+        ownsField()
+        && request.resource.data.userId == resource.data.userId
+        // status: 변경 없음(메인 지정 등) OR soft-delete(→ deleted). approved/rejected는 admin만.
+        && (request.resource.data.status == resource.data.status
+            || request.resource.data.status == 'deleted')
+      );
+
+      allow delete: if ownsField() || isAdmin();
+    }
+
+    // ===== preferences (auto-gen id + userId 필드) =====
+    match /preferences/{preferenceId} {
+      allow read: if ownsField() || isAdmin();
+      allow create: if createsOwn();
+      allow update: if ownsField() && request.resource.data.userId == resource.data.userId;
+      allow delete: if ownsField() || isAdmin();
+    }
+
+    // ===== consents (auto-gen id + userId 필드, 추가 전용 이력) =====
+    match /consents/{consentId} {
+      allow read: if ownsField() || isAdmin();
+      allow create: if createsOwn();
+      allow update: if isAdmin();      // 동의 이력은 사후 수정하지 않음
+      allow delete: if ownsField() || isAdmin();
+    }
+
+    // ===== entitlements (doc id == uid) =====
+    // 한도 상승(premium 전환/취소)은 Functions(admin SDK)가 처리하므로 client update는 차단.
+    // - create: bootstrap의 기본 free 생성(본인)만 허용. premium/임의 한도 자가 생성 차단.
+    //   (free 한도 값은 src/shared/lib/billing/plans.ts의 FREE_PLAN과 일치 — 변경 시 함께 수정.)
+    // - update: admin만(운영자 플랜 보정). 결제 upgrade/취소는 Functions가 admin SDK로 갱신.
+    match /entitlements/{userId} {
+      function isDefaultFreeEntitlement() {
+        return request.resource.data.planId == 'free'
+          && request.resource.data.dailyRecommendationLimit == 5
+          && request.resource.data.dailyLikeLimit == 3
+          && request.resource.data.dailySuperLikeLimit == 0
+          && request.resource.data.canUseAdvancedFilter == false
+          && request.resource.data.canSeeReceivedLikes == false;
+      }
+      allow read: if isSelf(userId) || isAdmin();
+      allow create: if isAdmin() || (isSelf(userId) && isDefaultFreeEntitlement());
+      allow update: if isAdmin();
+      allow delete: if isSelf(userId) || isAdmin();
+    }
+
+    // ===== payments (auto-gen id + userId 필드) =====
+    // 모든 write는 server(Functions admin SDK)만. client는 본인 결제 내역 read만.
+    match /payments/{paymentId} {
+      allow read: if ownsField() || isAdmin();
+      allow write: if false;
+    }
+
+    // ===== recommendationLogs (id = userId_recommendedUserId, userId 필드) =====
+    // 본인 노출 이력만. react Function은 admin SDK로 갱신하므로 rule 우회.
+    match /recommendationLogs/{logId} {
+      allow read: if ownsField();
+      allow create: if createsOwn();
+      allow update: if ownsField();
+      allow delete: if ownsField() || isAdmin();
+    }
+
+    // ===== blocks (id = blocker_blocked) =====
+    match /blocks/{blockId} {
+      // 내가 차단했거나 나를 차단한 문서만. getBlockedUserIds / getBlockerUserIds /
+      // isBlockedBetween 쿼리가 모두 secure-by-construction.
+      allow read: if isSignedIn()
+        && (resource.data.blockerUserId == uid() || resource.data.blockedUserId == uid());
+      allow create: if isSignedIn() && request.resource.data.blockerUserId == uid();
+      allow update: if false;
+      allow delete: if isSignedIn() && resource.data.blockerUserId == uid();
+    }
+
+    // ===== reports (id = reporter_type_target, reporterUserId 필드) =====
+    match /reports/{reportId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.reporterUserId == uid());
+      allow create: if isSignedIn()
+        && request.resource.data.reporterUserId == uid()
+        && request.resource.data.status == 'open';
+      allow update: if isAdmin();      // reviewReport — 상태 전이는 admin만
+      allow delete: if isAdmin();
+    }
+
+    // ===== identityVerifications (doc id == uid, 현재 mock) =====
+    match /identityVerifications/{userId} {
+      allow read: if isSelf(userId) || isAdmin();
+      allow write: if isSelf(userId) || isAdmin();
+    }
+
+    // ===== chatRooms / messages =====
+    match /chatRooms/{chatRoomId} {
+      allow read: if isSignedIn() && uid() in resource.data.users;
+      // 보통 server(react Function)가 생성. client 생성도 참여자 본인일 때만 허용.
+      allow create: if isSignedIn() && uid() in request.resource.data.users;
+      // lastMessage 갱신(메시지 전송 시) — 참여자만.
+      allow update: if isSignedIn() && uid() in resource.data.users;
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        function roomUsers() {
+          return get(/databases/$(database)/documents/chatRooms/$(chatRoomId)).data.users;
+        }
+        allow read: if isSignedIn() && uid() in roomUsers();
+        allow create: if isSignedIn()
+          && request.resource.data.sender == uid()
+          && uid() in roomUsers();
+        allow update, delete: if false;
+      }
+    }
+  }
+}

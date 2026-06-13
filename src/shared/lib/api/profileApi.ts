@@ -15,6 +15,7 @@ import type { UserProfile } from '@/shared/types/domain';
 // ROADMAP Phase 6 / 옵션 A: queryFn에서 firebase 헬퍼를 직접 호출.
 // Phase 3 도입 시 본 파일의 queryFn 본체만 Functions 호출로 교체한다.
 export const profileApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     getMe: builder.query<UserProfile | null, void>({
       async queryFn() {

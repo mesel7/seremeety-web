@@ -14,6 +14,7 @@ import { toPlainTimestamps } from '@/shared/lib/firebase/serialize';
 import type {
   OnboardingStatus,
   User,
+  UserRole,
   UserStatus,
 } from '@/shared/types/model/user';
 
@@ -33,7 +34,7 @@ export const getUserV2ByUid = async (uid: string): Promise<User | null> => {
   if (typeof data.onboardingStatus !== 'string') {
     return null;
   }
-  return { id: docSnap.id, ...(data as Omit<User, 'id'>) };
+  return toPlainTimestamps({ id: docSnap.id, ...(data as Omit<User, 'id'>) });
 };
 
 export const hasUserDoc = async (uid: string): Promise<boolean> => {
@@ -91,6 +92,24 @@ export const updateLastLogin = async (uid: string): Promise<void> => {
     lastLoginAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
+};
+
+// 운영자 권한 부여/회수. admin 부여 시 onboarding 우회 — onboardingStatus 가
+// 'approved' 가 아니면 'approved' 로 함께 전이해 다음 진입에서 곧장 /admin 으로 이동.
+// 회수 시엔 onboarding 흐름을 건드리지 않는다 (이미 정상 사용자였다면 그대로).
+export const setUserRole = async (
+  uid: string,
+  role: UserRole
+): Promise<void> => {
+  const update: Record<string, unknown> = {
+    role,
+    updatedAt: serverTimestamp(),
+  };
+  if (role === 'admin') {
+    update.onboardingStatus = 'approved';
+    update.status = 'active';
+  }
+  await updateDoc(doc(db, COLLECTION, uid), update);
 };
 
 // admin 사용자 정지/복구. status='suspended'/'deleted' 시 resolveEntryRoute가

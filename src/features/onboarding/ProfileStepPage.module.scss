@@ -47,7 +47,8 @@
   border: 0;
   padding: 0;
 
-  input,
+  // 텍스트/날짜 입력에만 박스 스타일 적용. radio/checkbox는 CustomRadio가 자체 스타일.
+  input:not([type='radio']):not([type='checkbox']),
   textarea {
     font-size: $size-16;
     padding: $size-10;
@@ -63,29 +64,51 @@
   }
 }
 
+.locationRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $size-8;
+}
+
 .label {
   font-size: $size-14;
   font-weight: 500;
   color: $color-text-primary;
 }
 
+// 마이페이지 내 프로필 폼과 동일한 패턴: 평범한 flex row + 각 radioItem 사이 간격만.
+// CustomRadio 자체 inline-flex 스타일을 그대로 유지.
 .radioGroup {
   display: flex;
-  gap: $size-16;
-  font-size: $size-16;
+  padding: $size-10 0;
+}
 
-  label {
-    display: flex;
-    align-items: center;
-    gap: $size-8;
-    cursor: pointer;
-  }
+.radioItem {
+  display: flex;
+  align-items: center;
+  margin-right: $size-20;
+  gap: $size-10;
 }
 
 .error {
   color: $color-accent-pink;
   font-size: $size-14;
   margin: 0;
+}
+
+.fieldHint {
+  font-size: $size-12;
+  color: $color-text-secondary;
+}
+
+.fieldOk {
+  font-size: $size-12;
+  color: $color-brand;
+}
+
+.fieldError {
+  font-size: $size-12;
+  color: $color-accent-pink;
 }
 
 .actions {

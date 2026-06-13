@@ -18,10 +18,11 @@ interface SendMessageArgs {
   text: string;
 }
 
-// chat_rooms / messages는 Firestore onSnapshot 구독을 사용한다. RTK Query에서는
+// chatRooms / messages는 Firestore onSnapshot 구독을 사용한다. RTK Query에서는
 // onCacheEntryAdded 훅으로 구독을 등록하고, cacheEntryRemoved 시 정리한다.
 // queryFn은 빈 배열을 즉시 반환하고 이후 구독이 데이터를 push한다.
 export const chatApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
     getChatRooms: builder.query<ChatRoomRecord[], void>({
       queryFn: () => ({ data: [] }),
@@ -65,7 +66,7 @@ export const chatApi = baseApi.injectEndpoints({
       },
     }),
 
-    // createMessage가 chat_rooms/{id}.lastMessage도 함께 갱신하므로
+    // createMessage가 chatRooms/{id}.lastMessage도 함께 갱신하므로
     // 별도 cache invalidation 없이 onSnapshot이 새 값을 push한다.
     sendMessage: builder.mutation<null, SendMessageArgs>({
       async queryFn({ chatRoomId, text }) {

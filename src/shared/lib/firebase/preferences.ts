@@ -10,6 +10,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { db } from '@/firebase';
+import { toPlainTimestamps } from '@/shared/lib/firebase/serialize';
 import type { Preference } from '@/shared/types/model/preference';
 
 const COLLECTION = 'preferences';
@@ -21,7 +22,7 @@ export const getPreferenceByUserId = async (userId: string): Promise<Preference 
     return null;
   }
   const docSnap = snap.docs[0];
-  return { id: docSnap.id, ...(docSnap.data() as Omit<Preference, 'id'>) };
+  return toPlainTimestamps({ id: docSnap.id, ...(docSnap.data() as Omit<Preference, 'id'>) });
 };
 
 export const createPreference = async (

@@ -17,6 +17,11 @@
   @include hover-opacity(0.75);
 }
 
+.root--reacted {
+  // reaction한 카드는 살짝 dim 처리해 "이미 처리한 카드"임을 시각적으로 표시.
+  opacity: 0.7;
+}
+
 .media {
   margin: 0;
   width: 100%;
@@ -29,6 +34,35 @@
   img {
     object-fit: cover;
   }
+}
+
+.badge {
+  position: absolute;
+  top: $size-8;
+  left: $size-8;
+  display: inline-flex;
+  align-items: center;
+  gap: $size-4;
+  padding: $size-4 $size-8;
+  border-radius: $radius-9999;
+  font-size: $size-12;
+  font-weight: 600;
+  letter-spacing: 0.32px;
+  color: $color-white;
+  backdrop-filter: blur(4px);
+  // 카드 좌상단에 reaction 종류 뱃지. 색상으로 like/superLike/pass 구분.
+}
+
+.badge--like {
+  background-color: rgba(220, 80, 100, 0.92);
+}
+
+.badge--superLike {
+  background: linear-gradient(135deg, rgba(146, 168, 209, 0.92), rgba(188, 223, 251, 0.92));
+}
+
+.badge--pass {
+  background-color: rgba(120, 120, 120, 0.85);
 }
 
 .content {

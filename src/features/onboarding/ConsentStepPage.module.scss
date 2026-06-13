@@ -1,0 +1,80 @@
+@use '@/styles/base' as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $size-12;
+}
+
+.itemAll {
+  display: flex;
+  align-items: center;
+  gap: $size-10;
+  cursor: pointer;
+  user-select: none;
+  color: $color-text-primary;
+}
+
+.itemAllLabel {
+  font-size: $size-16;
+  font-weight: 600;
+}
+
+.divider {
+  display: block;
+  width: 100%;
+  height: $border-1;
+  background-color: $color-border-subtle;
+  margin: $size-4 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $size-10;
+  cursor: pointer;
+  user-select: none;
+  font-size: $size-15;
+  color: $color-text-primary;
+}
+
+// 네이티브 input[type=checkbox] 가 globally appearance:none 으로 reset 되어 있어
+// 별도 스타일을 주지 않으면 사실상 안 보인다. 라디오와 같은 방식으로 input 자체를
+// 시각적 box로 styling하고, ::before 에 ✓ 글리프를 띄운다.
+.checkbox {
+  width: $size-18;
+  height: $size-18;
+  border: $border-1 solid $color-border-muted;
+  border-radius: 4px;
+  background-color: $color-white;
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-family: inherit;
+  color: $color-white;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:checked {
+    background-color: $color-brand;
+    border-color: $color-brand;
+  }
+
+  &:checked::before {
+    content: '✓';
+    line-height: 1;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.error {
+  color: $color-accent-pink;
+  font-size: $size-14;
+  margin: $size-12 0 0;
+}

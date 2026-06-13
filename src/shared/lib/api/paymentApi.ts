@@ -1,13 +1,8 @@
-import { auth } from '@/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { auth, functions } from '@/firebase';
 import { baseApi } from '@/shared/lib/api/baseApi';
 import { errorWithCode, serializeError } from '@/shared/lib/api/serializeError';
-import { getPlanDefinition } from '@/shared/lib/billing/plans';
-import { setEntitlementPlan } from '@/shared/lib/firebase/entitlements';
-import {
-  completeMockPayment,
-  createMockPayment,
-  getPaymentsByUserId,
-} from '@/shared/lib/firebase/payments';
+import { getPaymentsByUserId } from '@/shared/lib/firebase/payments';
 import type { Payment, PaymentStatus, PlanId } from '@/shared/types/model/billing';
 
 interface MockCheckoutArgs {
@@ -16,6 +11,8 @@ interface MockCheckoutArgs {
 
 interface MockCompleteArgs {
   paymentId: string;
+  // planId는 더 이상 client에서 신뢰하지 않는다(server가 payment.planId로 판정).
+  // PlanContent 호출 호환성을 위해 인자 형태만 유지하고 callable에는 전달하지 않는다.
   planId: PlanId;
   success: boolean;
 }
@@ -25,14 +22,31 @@ export interface MockCompleteResult {
   status: PaymentStatus;
 }
 
-// TODO(Phase 3): mock checkout 본체와 webhook 처리는 Functions로 이동.
-// 현재 client에서 payments 문서 + entitlement를 모두 갱신하므로 두 단계
-// 사이에 실패가 생기면 결제만 success로 남고 plan은 free로 머무를 수 있다.
-// 실제 PG 연동 시에는 Functions가 webhook을 받아 두 갱신을 atomically
-// 수행해야 한다.
+// Phase 3-B: mock 결제/권한 변경은 Functions onCall로 이전됐다.
+// - createMockPayment : mock_pending 결제 문서를 server에서 생성(amount는 server PLANS 기준)
+// - completeMockPayment: 본인 mock_pending 결제만 종결 + entitlement를 server PLANS로 atomic 갱신
+// - cancelMockSubscription: entitlement를 free로 다운그레이드(server-only)
+// client는 callable만 호출하고, firestore.rules가 payments write / entitlements update의
+// client 직접 쓰기를 차단한다. (admin의 플랜 보정은 adminApi.setUserPlan → isAdmin rule로 통과.)
+const createMockPaymentCallable = httpsCallable<
+  { planId: PlanId },
+  { paymentId: string }
+>(functions, 'createMockPayment');
+
+const completeMockPaymentCallable = httpsCallable<
+  { paymentId: string; success: boolean },
+  { paymentId: string; status: PaymentStatus }
+>(functions, 'completeMockPayment');
+
+const cancelMockSubscriptionCallable = httpsCallable<void, { ok: true }>(
+  functions,
+  'cancelMockSubscription'
+);
+
 export const paymentApi = baseApi.injectEndpoints({
+  overrideExisting: process.env.NODE_ENV === 'development',
   endpoints: (builder) => ({
-    // 내 결제 내역 (최신순). 요금제 페이지 하단 "결제 내역" 섹션에 사용 예정.
+    // 내 결제 내역 (최신순). 요금제 페이지 하단 "결제 내역" 섹션에 사용.
     getMyPayments: builder.query<Payment[], void>({
       async queryFn() {
         try {
@@ -47,20 +61,14 @@ export const paymentApi = baseApi.injectEndpoints({
       providesTags: ['Payment'],
     }),
 
-    // mock checkout 시작. mock_pending payment 문서를 만들고 paymentId 반환.
-    // UI는 paymentId를 들고 mockComplete으로 success/failure를 시뮬레이션한다.
+    // mock checkout 시작. server가 mock_pending 결제를 만들고 paymentId 반환.
     mockCheckout: builder.mutation<{ paymentId: string }, MockCheckoutArgs>({
       async queryFn({ planId }) {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) return { error: errorWithCode('not_authenticated') };
-          const plan = getPlanDefinition(planId);
-          const paymentId = await createMockPayment({
-            userId: uid,
-            planId,
-            amount: plan.priceKrw,
-          });
-          return { data: { paymentId } };
+          const res = await createMockPaymentCallable({ planId });
+          return { data: { paymentId: res.data.paymentId } };
         } catch (error) {
           return { error: serializeError(error) };
         }
@@ -68,39 +76,31 @@ export const paymentApi = baseApi.injectEndpoints({
       invalidatesTags: ['Payment'],
     }),
 
-    // mock checkout 완료. success=true면 payment.status=mock_success +
-    // entitlement.planId=premium 갱신. 실패면 status=mock_failed만 기록.
+    // mock checkout 완료. server가 payment 상태 + entitlement를 atomic 갱신한다.
     mockComplete: builder.mutation<MockCompleteResult, MockCompleteArgs>({
-      async queryFn({ paymentId, planId, success }) {
+      async queryFn({ paymentId, success }) {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) return { error: errorWithCode('not_authenticated') };
-          const status = await completeMockPayment(paymentId, success);
-          if (status === 'mock_success') {
-            await setEntitlementPlan(uid, planId);
-          }
-          return { data: { paymentId, status } };
+          const res = await completeMockPaymentCallable({ paymentId, success });
+          return {
+            data: { paymentId: res.data.paymentId, status: res.data.status },
+          };
         } catch (error) {
           return { error: serializeError(error) };
         }
       },
-      // 결제 성공 시 entitlement가 바뀌고, 그에 따라 추천/일일 한도도 다시
-      // 평가되어야 한다.
+      // 결제 성공 시 entitlement가 바뀌고, 그에 따라 추천/일일 한도도 다시 평가되어야 한다.
       invalidatesTags: ['Payment', 'Entitlement', 'Recommendation'],
     }),
 
-    // mock 구독 취소. mock checkout이 entitlement bit를 premium으로 플립한 것의 역.
-    // 즉시 free로 다운그레이드. 환불/만료 정책은 mock 범위 밖이라 별도 payment
-    // 문서는 만들지 않고 entitlement만 갱신한다.
-    // TODO(Phase 3): 실제 PG 연동 시 본 함수 위치에 환불 webhook + entitlement
-    // 만료(expiresAt) 처리가 들어간다. 즉시 다운그레이드 vs 기간 만료 후
-    // 다운그레이드는 그 시점에 정책 결정.
+    // mock 구독 취소 → server가 entitlement를 free로 즉시 다운그레이드.
     cancelMockSubscription: builder.mutation<null, void>({
       async queryFn() {
         try {
           const uid = auth.currentUser?.uid;
           if (!uid) return { error: errorWithCode('not_authenticated') };
-          await setEntitlementPlan(uid, 'free');
+          await cancelMockSubscriptionCallable();
           return { data: null };
         } catch (error) {
           return { error: serializeError(error) };

@@ -2,16 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/shared/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/store/hooks';
 import { selectAuthUid } from '@/shared/lib/store/authSlice';
 import {
   createPreference,
   getPreferenceByUserId,
   updatePreference,
 } from '@/shared/lib/firebase/preferences';
-import { setOnboardingStatus } from '@/shared/lib/firebase/usersV2';
+import { getProfileByUserId } from '@/shared/lib/firebase/profiles';
+import { goToPreviousOnboardingStep } from '@/shared/lib/onboarding/stepNavigation';
+import { transitionOnboardingStatus } from '@/shared/lib/onboarding/transitionOnboardingStatus';
 import { placeList } from '@/shared/data/places';
+import { cx } from '@/shared/lib/classNames';
 import Button from '@/shared/components/common/button/Button';
+import OnboardingFooter from './OnboardingFooter';
 import type { Gender } from '@/shared/types/model/profile';
 import styles from './PreferenceStepPage.module.scss';
 
@@ -21,14 +25,12 @@ const MIN_AGE_LIMIT = 18;
 const MAX_AGE_LIMIT = 80;
 
 interface PreferenceFormState {
-  targetGender: Gender;
   minAge: string;
   maxAge: string;
   preferredLocations: string[];
 }
 
 const initialForm: PreferenceFormState = {
-  targetGender: 'female',
   minAge: '20',
   maxAge: '35',
   preferredLocations: [],
@@ -36,11 +38,14 @@ const initialForm: PreferenceFormState = {
 
 const PreferenceStepPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const uid = useAppSelector(selectAuthUid);
   const [form, setForm] = useState<PreferenceFormState>(initialForm);
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
+  const [userGender, setUserGender] = useState<Gender | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoingBack, setIsGoingBack] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,11 +53,16 @@ const PreferenceStepPage = () => {
       return;
     }
     const load = async () => {
-      const existing = await getPreferenceByUserId(uid);
+      const [existing, profile] = await Promise.all([
+        getPreferenceByUserId(uid),
+        getProfileByUserId(uid),
+      ]);
+      if (profile?.gender) {
+        setUserGender(profile.gender);
+      }
       if (existing) {
         setPreferenceId(existing.id);
         setForm({
-          targetGender: existing.targetGender,
           minAge: String(existing.minAge),
           maxAge: String(existing.maxAge),
           preferredLocations: existing.preferredLocations,
@@ -82,6 +92,7 @@ const PreferenceStepPage = () => {
       return `최대 나이는 ${MIN_AGE_LIMIT}~${MAX_AGE_LIMIT} 사이로 입력해주세요`;
     }
     if (min > max) return '최소 나이가 최대 나이보다 클 수 없어요';
+    if (!userGender) return '프로필 성별 정보를 불러오지 못했어요. 새로고침해주세요.';
     return null;
   };
 
@@ -98,8 +109,12 @@ const PreferenceStepPage = () => {
         return;
       }
 
+      // 매칭 대상 성별은 사용자 본인 성별의 반대로 자동 결정.
+      // (다양한 지향성 옵션은 추후 별도 슬라이스.)
+      const targetGender: Gender = userGender === 'male' ? 'female' : 'male';
+
       const payload = {
-        targetGender: form.targetGender,
+        targetGender,
         minAge: Number(form.minAge),
         maxAge: Number(form.maxAge),
         preferredLocations: form.preferredLocations,
@@ -111,7 +126,7 @@ const PreferenceStepPage = () => {
         await createPreference(uid, payload);
       }
 
-      await setOnboardingStatus(uid, 'consent_required');
+      await transitionOnboardingStatus(dispatch, uid, 'consent_required');
       router.replace('/onboarding/consent');
     } catch (err) {
       console.error(err);
@@ -120,10 +135,25 @@ const PreferenceStepPage = () => {
     }
   };
 
+  const handleBack = async () => {
+    if (!uid || isSubmitting || isGoingBack) return;
+    setIsGoingBack(true);
+    try {
+      const target = await goToPreviousOnboardingStep(dispatch, uid, 'preference_required');
+      if (target) {
+        router.replace(target.href);
+      }
+    } catch (err) {
+      console.error(err);
+      setError('이전 단계로 이동 중 오류가 발생했어요.');
+      setIsGoingBack(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <section className={styles.root}>
-        <p className={styles.step}>STEP 4 / 6</p>
+        <p className={styles.step}>STEP 3 / 5</p>
         <h1 className={styles.title}>매칭 선호 조건</h1>
         <p className={styles.description}>잠시만 기다려주세요...</p>
       </section>
@@ -132,35 +162,11 @@ const PreferenceStepPage = () => {
 
   return (
     <section className={styles.root}>
-      <p className={styles.step}>STEP 4 / 6</p>
+      <p className={styles.step}>STEP 3 / 5</p>
       <h1 className={styles.title}>매칭 선호 조건</h1>
       <p className={styles.description}>
         상대에게는 보이지 않아요. 매칭에만 사용됩니다.
       </p>
-
-      <fieldset className={styles.field}>
-        <legend className={styles.label}>관심 성별</legend>
-        <div className={styles.radioGroup}>
-          <label>
-            <input
-              type="radio"
-              name="targetGender"
-              checked={form.targetGender === 'female'}
-              onChange={() => setForm((prev) => ({ ...prev, targetGender: 'female' }))}
-            />
-            여성
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="targetGender"
-              checked={form.targetGender === 'male'}
-              onChange={() => setForm((prev) => ({ ...prev, targetGender: 'male' }))}
-            />
-            남성
-          </label>
-        </div>
-      </fieldset>
 
       <div className={styles.ageRow}>
         <label className={styles.field}>
@@ -185,21 +191,31 @@ const PreferenceStepPage = () => {
         </label>
       </div>
 
-      <fieldset className={styles.field}>
-        <legend className={styles.label}>선호 지역 (다중 선택, 미선택 시 전체)</legend>
-        <div className={styles.locationGrid}>
-          {flatLocationList.map((p) => (
-            <label key={p} className={styles.locationItem}>
-              <input
-                type="checkbox"
-                checked={form.preferredLocations.includes(p)}
-                onChange={() => toggleLocation(p)}
-              />
-              {p}
-            </label>
-          ))}
+      <div className={styles.field}>
+        <span className={styles.label} id="onboarding-locations-label">
+          선호 지역 (다중 선택, 미선택 시 전체)
+        </span>
+        <div
+          className={styles.chipGroup}
+          role="group"
+          aria-labelledby="onboarding-locations-label"
+        >
+          {flatLocationList.map((p) => {
+            const selected = form.preferredLocations.includes(p);
+            return (
+              <button
+                key={p}
+                type="button"
+                className={cx(styles.chip, selected && styles['chip--selected'])}
+                aria-pressed={selected}
+                onClick={() => toggleLocation(p)}
+              >
+                {p}
+              </button>
+            );
+          })}
         </div>
-      </fieldset>
+      </div>
 
       {error && (
         <p className={styles.error} role="alert">
@@ -212,7 +228,13 @@ const PreferenceStepPage = () => {
           text={isSubmitting ? '저장 중...' : '다음으로'}
           onClick={isSubmitting ? undefined : () => void handleSubmit()}
         />
+        <Button
+          type="secondary"
+          text={isGoingBack ? '이동 중...' : '이전 단계'}
+          onClick={isGoingBack || isSubmitting ? undefined : () => void handleBack()}
+        />
       </div>
+      <OnboardingFooter />
     </section>
   );
 };

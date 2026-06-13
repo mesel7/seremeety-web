@@ -40,8 +40,7 @@
   border: 0;
   padding: 0;
 
-  input,
-  select {
+  input {
     font-size: $size-16;
     padding: $size-10;
     border: $border-1 solid $color-border-subtle;
@@ -58,38 +57,42 @@
   color: $color-text-primary;
 }
 
-.radioGroup {
-  display: flex;
-  gap: $size-16;
-  font-size: $size-16;
-
-  label {
-    display: flex;
-    align-items: center;
-    gap: $size-8;
-    cursor: pointer;
-  }
-}
-
 .ageRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $size-12;
 }
 
-.locationGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+// 선호 지역 toggle chips. 클릭 가능한 영역과 선택 상태가 시각적으로 분명하다.
+.chipGroup {
+  display: flex;
+  flex-wrap: wrap;
   gap: $size-8;
-  margin-top: $size-8;
+  margin-top: $size-4;
 }
 
-.locationItem {
-  display: flex;
+.chip {
+  display: inline-flex;
   align-items: center;
-  gap: $size-5;
+  padding: $size-8 $size-12;
+  border: $border-1 solid $color-border-muted;
+  border-radius: $radius-9999;
+  background-color: $color-white;
+  color: $color-text-primary;
   font-size: $size-14;
+  font-family: inherit;
   cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: $color-brand;
+  }
+
+  &--selected {
+    border-color: $color-brand;
+    background-color: $color-brand;
+    color: $color-white;
+  }
 }
 
 .error {

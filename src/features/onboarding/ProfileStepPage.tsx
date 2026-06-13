@@ -1,21 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/shared/lib/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/shared/lib/store/hooks';
 import { selectAuthUid } from '@/shared/lib/store/authSlice';
 import {
   createDraftProfile,
   getProfileByUserId,
   updateProfile,
 } from '@/shared/lib/firebase/profiles';
-import { setOnboardingStatus } from '@/shared/lib/firebase/usersV2';
+import { transitionOnboardingStatus } from '@/shared/lib/onboarding/transitionOnboardingStatus';
 import { writeProfileToLegacyUser } from '@/shared/lib/firebase/legacyBridge';
 import { checkNicknameDuplicate } from '@/shared/lib/firebase/users';
 import { placeList } from '@/shared/data/places';
 import { universityList } from '@/shared/data/universities';
 import Button from '@/shared/components/common/button/Button';
+import CustomRadio from '@/shared/components/common/custom-radio/CustomRadio';
+import DatePicker from '@/shared/components/common/date-picker/DatePicker';
 import Select, { type SelectOption } from '@/shared/components/common/select/Select';
+import OnboardingFooter from './OnboardingFooter';
 import type { Gender } from '@/shared/types/model/profile';
 import styles from './ProfileStepPage.module.scss';
 
@@ -26,15 +29,27 @@ const MBTI_OPTIONS = [
   'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ',
 ];
 
-const CURRENT_YEAR = new Date().getFullYear();
-const MIN_BIRTH_YEAR = CURRENT_YEAR - 80;
-const MAX_BIRTH_YEAR = CURRENT_YEAR - 18;
+// 입력 가능한 birthdate 범위 (만 18세 이상 ~ 80세 이하).
+const today = new Date();
+const formatYmd = (d: Date): string => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+const MAX_BIRTHDATE = formatYmd(
+  new Date(today.getFullYear() - 18, today.getMonth(), today.getDate())
+);
+const MIN_BIRTHDATE = formatYmd(
+  new Date(today.getFullYear() - 80, today.getMonth(), today.getDate())
+);
 
 interface ProfileFormState {
   nickname: string;
-  birthYear: string;
+  birthdate: string; // YYYY-MM-DD
   gender: Gender | '';
-  location: string;
+  locationRegion: string;
+  locationDistrict: string;
   bio: string;
   mbti: string;
   university: string;
@@ -42,17 +57,16 @@ interface ProfileFormState {
 
 const initialForm: ProfileFormState = {
   nickname: '',
-  birthYear: '',
+  birthdate: '',
   gender: '',
-  location: '',
+  locationRegion: '',
+  locationDistrict: '',
   bio: '',
   mbti: '',
   university: '',
 };
 
-const flatLocationList = placeList.flatMap(([region]) => [region]);
-
-const LOCATION_OPTIONS: SelectOption[] = flatLocationList.map((region) => ({
+const REGION_OPTIONS: SelectOption[] = placeList.map(([region]) => ({
   value: region,
   label: region,
 }));
@@ -67,14 +81,40 @@ const UNIVERSITY_OPTIONS: SelectOption[] = universityList.map((option) => ({
   label: option,
 }));
 
+const NICKNAME_MIN = 2;
+const NICKNAME_MAX = 12;
+
+type NicknameStatus = 'idle' | 'checking' | 'available' | 'duplicate' | 'invalid';
+
+// 기존 birthYear/Month/Day → "YYYY-MM-DD" 문자열로 합치기.
+const toBirthdateString = (
+  year?: number,
+  month?: number,
+  day?: number
+): string => {
+  if (!year || !month || !day) return '';
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+};
+
 const ProfileStepPage = () => {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const uid = useAppSelector(selectAuthUid);
   const [form, setForm] = useState<ProfileFormState>(initialForm);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [nicknameStatus, setNicknameStatus] = useState<NicknameStatus>('idle');
+  const initialNicknameRef = useRef<string>('');
+  const nicknameCheckSeqRef = useRef(0);
+
+  // 선택된 region에 해당하는 district 옵션. region이 바뀌면 district는 리셋.
+  const districtOptions = useMemo<SelectOption[]>(() => {
+    const entry = placeList.find(([region]) => region === form.locationRegion);
+    if (!entry || entry[1].length === 0) return [];
+    return entry[1].map((d) => ({ value: d, label: d }));
+  }, [form.locationRegion]);
 
   useEffect(() => {
     if (!uid) {
@@ -84,11 +124,17 @@ const ProfileStepPage = () => {
       const existing = await getProfileByUserId(uid);
       if (existing) {
         setProfileId(existing.id);
+        initialNicknameRef.current = existing.nickname ?? '';
         setForm({
           nickname: existing.nickname ?? '',
-          birthYear: existing.birthYear ? String(existing.birthYear) : '',
+          birthdate: toBirthdateString(
+            existing.birthYear,
+            existing.birthMonth,
+            existing.birthDay
+          ),
           gender: existing.gender ?? '',
-          location: existing.location ?? '',
+          locationRegion: existing.location ?? '',
+          locationDistrict: existing.locationDistrict ?? '',
           bio: existing.bio ?? '',
           mbti: existing.mbti ?? '',
           university: existing.university ?? '',
@@ -103,25 +149,72 @@ const ProfileStepPage = () => {
     key: K,
     value: ProfileFormState[K]
   ) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+    setForm((prev) => {
+      // region이 변경되면 district 리셋.
+      if (key === 'locationRegion' && prev.locationRegion !== value) {
+        return { ...prev, [key]: value, locationDistrict: '' };
+      }
+      return { ...prev, [key]: value };
+    });
+    if (key === 'nickname') {
+      setNicknameStatus('idle');
+    }
+  };
+
+  // 닉네임 onBlur — 길이 / 중복 즉시 안내. 동시 호출 방지를 위해 seq 카운터 사용.
+  const handleNicknameBlur = async () => {
+    const name = form.nickname.trim();
+    if (!name) {
+      setNicknameStatus('idle');
+      return;
+    }
+    if (name.length < NICKNAME_MIN || name.length > NICKNAME_MAX) {
+      setNicknameStatus('invalid');
+      return;
+    }
+    if (name === initialNicknameRef.current) {
+      setNicknameStatus('available');
+      return;
+    }
+    nicknameCheckSeqRef.current += 1;
+    const seq = nicknameCheckSeqRef.current;
+    setNicknameStatus('checking');
+    try {
+      const isAvailable = await checkNicknameDuplicate(name);
+      if (seq !== nicknameCheckSeqRef.current) {
+        return;
+      }
+      setNicknameStatus(isAvailable ? 'available' : 'duplicate');
+    } catch {
+      if (seq !== nicknameCheckSeqRef.current) {
+        return;
+      }
+      setNicknameStatus('idle');
+    }
   };
 
   const validate = async (): Promise<string | null> => {
     if (!form.nickname.trim()) return '닉네임을 입력해주세요';
-    if (form.nickname.length < 2 || form.nickname.length > 12) {
-      return '닉네임은 2~12자로 입력해주세요';
+    if (form.nickname.length < NICKNAME_MIN || form.nickname.length > NICKNAME_MAX) {
+      return `닉네임은 ${NICKNAME_MIN}~${NICKNAME_MAX}자로 입력해주세요`;
     }
-    const isAvailable = await checkNicknameDuplicate(form.nickname);
-    if (!isAvailable) return '이미 사용 중인 닉네임이에요';
+    if (form.nickname.trim() !== initialNicknameRef.current) {
+      const isAvailable = await checkNicknameDuplicate(form.nickname.trim());
+      if (!isAvailable) return '이미 사용 중인 닉네임이에요';
+    }
 
-    const birthYear = Number(form.birthYear);
-    if (!birthYear || birthYear < MIN_BIRTH_YEAR || birthYear > MAX_BIRTH_YEAR) {
-      return `출생연도는 ${MIN_BIRTH_YEAR}~${MAX_BIRTH_YEAR} 사이로 입력해주세요`;
+    if (!form.birthdate) return '생년월일을 선택해주세요';
+    if (form.birthdate < MIN_BIRTHDATE || form.birthdate > MAX_BIRTHDATE) {
+      return '만 18세 이상만 가입 가능해요';
     }
+
     if (form.gender !== 'male' && form.gender !== 'female') {
       return '성별을 선택해주세요';
     }
-    if (!form.location.trim()) return '지역을 선택해주세요';
+    if (!form.locationRegion.trim()) return '지역을 선택해주세요';
+    if (districtOptions.length > 0 && !form.locationDistrict.trim()) {
+      return '세부 지역을 선택해주세요';
+    }
     if (!form.bio.trim() || form.bio.length < 10) {
       return '자기소개를 10자 이상 입력해주세요';
     }
@@ -142,11 +235,19 @@ const ProfileStepPage = () => {
         return;
       }
 
+      const [yStr, mStr, dStr] = form.birthdate.split('-');
+      const birthYear = Number(yStr);
+      const birthMonth = Number(mStr);
+      const birthDay = Number(dStr);
+
       const profilePayload = {
         nickname: form.nickname.trim(),
-        birthYear: Number(form.birthYear),
+        birthYear,
+        birthMonth,
+        birthDay,
         gender: form.gender as Gender,
-        location: form.location,
+        location: form.locationRegion,
+        locationDistrict: form.locationDistrict || undefined,
         bio: form.bio.trim(),
         mbti: form.mbti || undefined,
         university: form.university || undefined,
@@ -160,17 +261,22 @@ const ProfileStepPage = () => {
         setProfileId(pid);
       }
 
+      // legacy users.* 에는 birthMonth/Day나 locationDistrict가 없으니 dual-write에선
+      // 기존 필드(legacy "location"은 "서울 강남구" 합성)만 보낸다.
+      const displayLocation = profilePayload.locationDistrict
+        ? `${profilePayload.location} ${profilePayload.locationDistrict}`
+        : profilePayload.location;
       await writeProfileToLegacyUser(uid, {
         nickname: profilePayload.nickname,
         birthYear: profilePayload.birthYear,
         gender: profilePayload.gender,
-        location: profilePayload.location,
+        location: displayLocation,
         bio: profilePayload.bio,
         mbti: profilePayload.mbti,
         university: profilePayload.university,
       });
 
-      await setOnboardingStatus(uid, 'photo_required');
+      await transitionOnboardingStatus(dispatch, uid, 'photo_required');
       router.replace('/onboarding/photos');
     } catch (err) {
       console.error(err);
@@ -182,16 +288,34 @@ const ProfileStepPage = () => {
   if (isLoading) {
     return (
       <section className={styles.root}>
-        <p className={styles.step}>STEP 2 / 6</p>
+        <p className={styles.step}>STEP 1 / 5</p>
         <h1 className={styles.title}>기본 프로필 작성</h1>
         <p className={styles.description}>잠시만 기다려주세요...</p>
       </section>
     );
   }
 
+  const nicknameMessage = (() => {
+    switch (nicknameStatus) {
+      case 'checking':
+        return { text: '확인 중...', tone: 'muted' as const };
+      case 'available':
+        return { text: '사용 가능한 닉네임이에요', tone: 'ok' as const };
+      case 'duplicate':
+        return { text: '이미 사용 중인 닉네임이에요', tone: 'error' as const };
+      case 'invalid':
+        return {
+          text: `닉네임은 ${NICKNAME_MIN}~${NICKNAME_MAX}자로 입력해주세요`,
+          tone: 'error' as const,
+        };
+      default:
+        return null;
+    }
+  })();
+
   return (
     <section className={styles.root}>
-      <p className={styles.step}>STEP 2 / 6</p>
+      <p className={styles.step}>STEP 1 / 5</p>
       <h1 className={styles.title}>기본 프로필 작성</h1>
       <p className={styles.description}>
         상대에게 보여질 프로필이에요. 정확하게 작성해주세요.
@@ -204,59 +328,81 @@ const ProfileStepPage = () => {
             type="text"
             value={form.nickname}
             onChange={(e) => updateField('nickname', e.target.value)}
-            maxLength={12}
+            onBlur={() => void handleNicknameBlur()}
+            maxLength={NICKNAME_MAX}
             required
           />
+          {nicknameMessage && (
+            <span
+              className={
+                nicknameMessage.tone === 'error'
+                  ? styles.fieldError
+                  : nicknameMessage.tone === 'ok'
+                    ? styles.fieldOk
+                    : styles.fieldHint
+              }
+              role={nicknameMessage.tone === 'error' ? 'alert' : 'status'}
+            >
+              {nicknameMessage.text}
+            </span>
+          )}
         </label>
 
-        <label className={styles.field}>
-          <span className={styles.label}>출생연도</span>
-          <input
-            type="number"
-            value={form.birthYear}
-            onChange={(e) => updateField('birthYear', e.target.value)}
-            min={MIN_BIRTH_YEAR}
-            max={MAX_BIRTH_YEAR}
-            placeholder={`예: ${MAX_BIRTH_YEAR - 5}`}
-            required
+        <div className={styles.field}>
+          <span className={styles.label} id="onboarding-birth-label">생년월일</span>
+          <DatePicker
+            value={form.birthdate}
+            onChange={(next) => updateField('birthdate', next)}
+            min={MIN_BIRTHDATE}
+            max={MAX_BIRTHDATE}
+            placeholder="생년월일 선택"
+            aria-labelledby="onboarding-birth-label"
           />
-        </label>
+        </div>
 
         <fieldset className={styles.field}>
           <legend className={styles.label}>성별</legend>
           <div className={styles.radioGroup}>
-            <label>
-              <input
-                type="radio"
+            <div className={styles.radioItem}>
+              <CustomRadio
                 name="gender"
                 value="male"
                 checked={form.gender === 'male'}
                 onChange={() => updateField('gender', 'male')}
+                label="남성"
               />
-              남성
-            </label>
-            <label>
-              <input
-                type="radio"
+            </div>
+            <div className={styles.radioItem}>
+              <CustomRadio
                 name="gender"
                 value="female"
                 checked={form.gender === 'female'}
                 onChange={() => updateField('gender', 'female')}
+                label="여성"
               />
-              여성
-            </label>
+            </div>
           </div>
         </fieldset>
 
         <div className={styles.field}>
           <span className={styles.label} id="onboarding-location-label">지역</span>
-          <Select
-            value={form.location}
-            onChange={(next) => updateField('location', next)}
-            options={LOCATION_OPTIONS}
-            placeholder="선택"
-            aria-labelledby="onboarding-location-label"
-          />
+          <div className={styles.locationRow} aria-labelledby="onboarding-location-label">
+            <Select
+              value={form.locationRegion}
+              onChange={(next) => updateField('locationRegion', next)}
+              options={REGION_OPTIONS}
+              placeholder="시/도"
+              aria-label="시/도"
+            />
+            <Select
+              value={form.locationDistrict}
+              onChange={(next) => updateField('locationDistrict', next)}
+              options={districtOptions}
+              placeholder={districtOptions.length === 0 ? '해당 없음' : '시/구'}
+              disabled={districtOptions.length === 0}
+              aria-label="시/구"
+            />
+          </div>
         </div>
 
         <div className={styles.field}>
@@ -277,7 +423,9 @@ const ProfileStepPage = () => {
             value={form.university}
             onChange={(next) => updateField('university', next)}
             options={UNIVERSITY_OPTIONS}
-            placeholder="선택 안 함"
+            placeholder="학교 선택 또는 검색"
+            searchable
+            searchPlaceholder="학교 이름 검색"
             isClearable
             aria-labelledby="onboarding-university-label"
           />
@@ -307,6 +455,7 @@ const ProfileStepPage = () => {
           />
         </div>
       </div>
+      <OnboardingFooter />
     </section>
   );
 };

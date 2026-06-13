@@ -72,8 +72,9 @@ export const getTodayRecommendations = async (
   );
   const reactedIds = new Set(myReactions.map((r) => r.toUserId));
 
-  // 1) 오늘 이미 노출된 카드는 동일하게 다시 보여준다(이탈/재진입 안정성).
-  //    react 한 카드도 포함시켜 화면에서 disabled 상태로 표시되도록 한다.
+  // 1) 오늘 이미 노출된 카드는 항상 표시. 본인이 reaction 한 카드도 카드 자체는
+  //    유지하고, ProfileCardItem이 reaction 상태 뱃지/disabled를 표시한다.
+  //    "내가 누른 게 뭐였는지" 추적은 카드의 시각 표시 + /likes 페이지가 담당.
   const todayShownProfiles = (
     await Promise.all(
       Array.from(todayShownIds).map((uid) => getUserDataByUid(uid))
@@ -111,9 +112,8 @@ export const getTodayRecommendations = async (
   const combined = [...todayShownProfiles, ...picked];
 
   // 6) Fallback — 오늘 노출 0개 + 신규 후보도 0개인 경우(예: KST 자정 직후
-  //    재진입 + 후보 풀이 작아 어제 다 본 상태). 한 번이라도 추천받았던 카드는
-  //    화면에서 사라지지 않도록 가장 최근 logs 기준 limit개를 표시한다.
-  //    react 한 카드는 화면에서 disabled 상태로 자연스레 노출된다.
+  //    재진입 + 후보 풀이 작아 어제 다 본 상태). 가장 최근 logs 기준 limit개를
+  //    표시한다. reaction 여부와 무관하게 카드를 유지하는 게 정책.
   if (combined.length === 0 && allLogs.length > 0) {
     const recentLogIds = allLogs
       .slice()

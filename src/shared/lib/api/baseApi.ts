@@ -19,6 +19,8 @@ export const baseApi = createApi({
     'Photo',
     'Recommendation',
     'Reaction',
+    'SentLikes',
+    'ReceivedLikes',
     'Match',
     'Message',
     'Block',

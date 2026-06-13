@@ -1,0 +1,56 @@
+@use '@/styles/base' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $size-12;
+  padding: $size-32 $size-24;
+  margin: $size-24;
+  border: $border-1 solid $color-border-subtle;
+  border-radius: $size-16;
+  background:
+    linear-gradient(180deg, rgba(188, 223, 251, 0.15) 0%, rgba(255, 255, 255, 0.95) 60%),
+    $color-white;
+  text-align: center;
+}
+
+.icon {
+  color: $color-brand;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-heading;
+  font-size: $size-20;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.description {
+  margin: 0;
+  font-size: $size-14;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: $size-44;
+  padding: $size-12 $size-24;
+  border-radius: $size-12;
+  background: $gradient-brand;
+  color: $color-white;
+  font-size: $size-14;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: $shadow-light;
+  transition: opacity 0.2s ease;
+  margin-top: $size-8;
+
+  @include hover-capable {
+    opacity: 0.94;
+  }
+}
