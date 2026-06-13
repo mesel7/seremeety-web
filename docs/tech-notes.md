@@ -164,10 +164,9 @@ auth_only → profile_required → photo_required → preference_required
 
 이 프로젝트는 의도적으로 "운영 가능한 구조"를 지향하지만, 아직 실서비스 라이브 노출 단계는 아니다.
 
-- **보안 과도기:** `reactions`/`matches`만 서버로 잠겼고, 나머지 컬렉션의 Security Rules는 넓게 열려 있다.
+- **보안:** Phase 3-B로 Rules를 컬렉션별로 좁혔다(권한 상승·타인 데이터 접근 차단, 결제/권한 write는 Functions로). 단 mock 결제의 self-upgrade는 실 PG 결제 검증 전까지 본질적으로 열려 있고, `users`/`profiles` read 강화는 후속.
 - **추천 점수화 없음:** 현재는 단순 셔플(`score=0`). 나이/지역/태그 가중치는 후속.
-- **legacy reader 잔존:** 일부 화면이 구 `users`/`chat_rooms`를 읽는다.
-- **배포 정합성:** hosting 산출물(`dist`) ↔ Next 빌드(`.next`) 불일치([deployment.md](./operations/deployment.md)).
+- **legacy reader 잔존:** 일부 화면이 구 `users`/`chat_rooms`를 읽는다(점진 마이그레이션 중).
 
 전체 목록과 우선순위는 [status.md](./status.md), 사업/법무/인프라 항목은
 [operations/production-checklist.md](./operations/production-checklist.md)에 있다.

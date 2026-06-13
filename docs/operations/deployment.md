@@ -2,64 +2,55 @@
 
 ## 1. 구성 요소
 
-| 대상 | 도구 | 산출물/위치 |
+| 대상 | 도구 | 비고 |
 |---|---|---|
-| 웹 앱 | Next.js build | Firebase Hosting site `seremeety-kr` |
-| 서버 로직 | Firebase Functions | region `asia-northeast3` |
-| DB 규칙/인덱스 | Firestore | `firestore.rules`, `firestore.indexes.json` |
+| 웹 앱 (Next.js) | **Vercel** | GitHub `main` push 시 자동 배포 |
+| 서버 로직 | **Firebase Functions** | region `asia-northeast3`, runtime `nodejs22` (2nd Gen) |
+| DB 규칙/인덱스 | **Firestore** | `firestore.rules`, `firestore.indexes.json` |
 
-## 2. ⚠️ Hosting 빌드 산출물 불일치 (배포 전 반드시 확인)
+> Firebase Hosting은 사용하지 않는다(과거 구 SPA에서 쓰던 설정은 제거됨). 웹은 Vercel, 백엔드만 Firebase.
 
-`firebase.json`의 hosting 설정은 **정적 SPA** 가정이다.
+## 2. 웹 앱 (Vercel)
 
-```json
-"hosting": {
-  "public": "dist",
-  "rewrites": [{ "source": "**", "destination": "/index.html" }],
-  "site": "seremeety-kr"
-}
-```
+- `main`에 push하면 Vercel이 자동으로 `next build` → 배포한다. 별도 수동 명령이 필요 없다.
+- 환경변수(`NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_SITE_URL`)는 Vercel 프로젝트 설정에 등록한다([env.md](./env.md)).
+- 동적 라우트(`profile/[uid]`, `chat-room/[chatRoomId]`)는 Vercel의 Next.js 런타임에서 그대로 동작한다.
 
-그러나 현재 `next.config.mjs`에는 `output: 'export'`가 없어 `npm run build`는 `dist/`가 아니라 `.next/`를
-생성하고 `index.html`도 만들지 않는다. 즉 **현 설정 그대로는 `firebase deploy --only hosting`이 빈/오래된
-`dist/`를 올린다.** 배포 전 둘 중 하나로 정합성을 맞춰야 한다.
-
-- **옵션 A — 정적 export 유지(현 hosting 설정과 일치):** `next.config.mjs`에 `output: 'export'`를 추가하고
-  빌드 산출물을 `dist/`로 맞춘다(`distDir` 또는 export 후 복사). 단 App Router 정적 export는 동적 서버
-  기능을 못 쓴다. 본 앱은 Firebase SDK 기반 클라이언트 렌더라 대체로 호환되지만, 동적 라우트
-  (`profile/[uid]`, `chat-room/[chatRoomId]`)는 `generateStaticParams` 또는 클라이언트 처리로 정리 필요.
-- **옵션 B — 서버 렌더 유지:** Firebase Hosting + Cloud Functions/Run로 Next 서버를 돌리거나 Vercel 등으로
-  배포. 이 경우 `public: "dist"` + SPA rewrite 설정을 교체.
-
-> 이 항목은 [status.md](../status.md)의 "실운영 전 남은 작업"에도 기재되어 있다. 결정 전에는 hosting 배포를
-> 신뢰하지 말 것.
-
-## 3. 배포 명령
+## 3. 백엔드 (Firebase)
 
 ```bash
-# 1) Functions
-cd functions && npm run build && cd ..
+# Functions (predeploy가 tsc 빌드 수행)
 firebase deploy --only functions
 
-# 2) Firestore 규칙 / 인덱스
+# Firestore 규칙 / 인덱스
 firebase deploy --only firestore:rules
 firebase deploy --only firestore:indexes
 
-# 3) 웹 (위 §2 정합성 확보 후)
-npm run build
-firebase deploy --only hosting:seremeety-kr
+# 한 번에
+firebase deploy --only functions,firestore:rules,firestore:indexes
 ```
+
+- 프로젝트: `seremeety-web` (`.firebaserc` default). 로그인은 `firebase login`.
+- **규칙과 함수를 함께 바꿀 때는 같이 배포한다.** 예: 결제 규칙이 client write를 막는데 결제 Functions가
+  없으면 흐름이 깨진다 — 항상 `functions,firestore:rules`를 함께 deploy.
 
 배포 전 검증:
 
 ```bash
 npm run lint
 npx tsc --noEmit
+cd functions && npm run build   # functions tsc
 ```
 
-## 4. 롤백 / 로그
+## 4. 롤백 / 로그 / 비용 가드
 
-- Hosting: Firebase Console → Hosting → 릴리스 기록에서 이전 버전으로 롤백.
+- 웹: Vercel 대시보드에서 이전 배포로 즉시 롤백(Instant Rollback).
 - Functions: `cd functions && npm run logs` (`firebase functions:log`).
 - 비용 가드: 모든 Function은 `minInstances: 0`, `maxInstances: 5`, `timeoutSeconds: 30`, `memory: 256MiB`로
-  잠겨 있다(`functions/src/index.ts`). 무한루프/retry 폭주 시 동시 실행 cap이 작동.
+  잠겨 있다(`functions/src/index.ts`).
+
+## 5. 런타임 / 패키지 유지보수
+
+- Functions runtime: `nodejs22`(`firebase.json` + `functions/package.json` `engines.node`).
+- `firebase-functions@7` / `firebase-admin@13` 사용. 두 패키지는 peer 호환 범위가 묶여 있다
+  (functions@7 ↔ admin `^11||^12||^13`, **admin@14는 비호환**). 업그레이드 시 쌍을 맞춘다.

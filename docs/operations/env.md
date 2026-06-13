@@ -16,7 +16,7 @@
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | 사진 업로드 버킷 | |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | FCM sender id | 현재 푸시 미사용 |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase 앱 식별자 | |
-| `NEXT_PUBLIC_SITE_URL` | 절대 URL 생성 기준 | 예: `https://seremeety-kr.web.app` |
+| `NEXT_PUBLIC_SITE_URL` | 절대 URL 생성 기준 | 배포 도메인(Vercel 프로덕션/커스텀 도메인) |
 
 이 값들은 `src/firebase.ts`의 `initializeApp`에 주입된다.
 

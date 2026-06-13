@@ -69,11 +69,12 @@
 4. **🟠 legacy bridge 제거 + reader 마이그레이션.** matching/chat/mypage가 아직 `users`/`chat_rooms`
    legacy 필드를 읽음. 신규 `profiles`/`profilePhotos`/`matches`/`messages` 기반으로 전환 후 dual-write
    폐기. (Phase 6)
-5. **🟠 배포 산출물 정합성.** `firebase.json`은 `dist/` 정적 SPA를 가정하지만 Next 빌드는 `.next/`를
-   생성한다([deployment.md §2](./operations/deployment.md)).
-6. **🟡 추천 점수화.** `RecommendationLog.score`는 항상 `0`, `reasonCodes`는 `[]`. 나이/지역/태그 가중치
+5. **🟡 추천 점수화.** `RecommendationLog.score`는 항상 `0`, `reasonCodes`는 `[]`. 나이/지역/태그 가중치
    도입. (Phase 5 후속)
-7. **🟡 실 PG / 본인확인 연동.** 사업/법무 선행 필요 — [production-checklist](./operations/production-checklist.md).
+6. **🟡 실 PG / 본인확인 연동.** 사업/법무 선행 필요 — [production-checklist](./operations/production-checklist.md).
+
+> 배포: 웹은 **Vercel**(GitHub `main` 자동 배포), 백엔드는 **Firebase Functions**(nodejs22) + Firestore.
+> 과거 Firebase Hosting(`dist` 정적 SPA) 설정은 제거됨 — [deployment.md](./operations/deployment.md).
 
 ---
 

@@ -268,16 +268,19 @@ dispatch(
 | Endpoint | 역할 |
 |---|---|
 | `react` (callable) | 좋아요/패스/슈퍼좋아요 + 차단·한도 검증 + 매칭 생성 + chatRoom dual-write |
+| `createMockPayment` / `completeMockPayment` / `cancelMockSubscription` (callable) | mock 결제 생성/완료/취소 + entitlement를 서버 PLANS로 atomic 갱신 (Phase 3-B) |
 
-### 이전된 후 client 가 손대지 못하는 것
+### server-only / 잠긴 write (Phase 3-A·3-B)
 
-- `reactions/{id}` write — Firestore Rule 에서 `allow write: if false` (Functions 만 admin SDK 로 작성)
-- `matches/{id}` write — 동일
+- `reactions`/`matches`/`payments` write — Firestore Rule `allow write: if false` (Functions admin SDK만)
+- `entitlements` update — admin-only (결제 전환은 Functions). create는 bootstrap의 free만 self 허용
+- `users.role`/`status`/`onboardingStatus`, `profiles`/`profilePhotos`의 승인 status — self write 차단(admin/Functions만)
+- `preferences`/`consents`/`entitlements`/`payments`/`identityVerifications`/`recommendationLogs` read — self/admin only
 
-### 아직 client write 가 허용된 컬렉션 (알려진 제약)
+### 아직 열린 부분 (후속)
 
-- `users`, `profiles`, `profilePhotos`, `preferences`, `consents`, `entitlements`, `payments`, `reports`, `blocks`, `chatRooms` — 인증된 사용자면 누구나 write 가능. **악의적 사용자가 self-promote / 다른 사용자 프로필 변조 가능**.
-- ROADMAP Phase 3-B / 3-C 에서 collection 별로 좁힐 예정. 현재는 클라이언트 측 [AdminRouteGate](../src/shared/providers/AdminRouteGate.tsx) + admin role 체크가 임시 방어선.
+- `users`/`profiles`/`profilePhotos` read는 매칭·채팅 호환을 위해 authenticated. `profiles`를 approved-only로 좁히려면 클라이언트 공개 조회 쿼리 변경 필요.
+- admin 판정이 rules의 `isAdmin()`(호출자 users.role get) — Phase 3-C에서 Custom Claims로 강화 예정.
 
 ---
 
@@ -287,12 +290,12 @@ dispatch(
 |---|---|---|
 | 라우트 가드 (`/admin/**`) | ✅ 클라이언트 측 | `role==='admin'` 이 아니면 `/matching` 으로 리다이렉트 |
 | 가입 흐름 강제 (`/onboarding/*`) | ✅ | onboardingStatus 기반 정확한 step 으로 redirect |
-| Firestore write 권한 | ⚠️ 인증만 검증 | Phase 3-B 에서 collection 별 좁힐 예정 |
+| Firestore write 권한 | ✅ 컬렉션별 (Phase 3-B) | 권한 상승/타인 데이터 write 차단. admin은 `isAdmin()` rule로 통과 |
 | 일일 한도 / 차단 검증 | ✅ Server-side (Functions) | react onCall 에서 검증 |
 | 매칭 생성 | ✅ Server-side | client trust 제거 |
-| PII 보호 | ⚠️ | preferences/consents 도 인증된 임의 사용자가 read 가능. Phase 3-B에서 path-level rule 로 self-only 제한 예정 |
-
-**라이브 서비스 노출은 Phase 3-B 종료 전엔 비권장**. 포트폴리오 데모로는 동작 검증 충분.
+| 결제 / 권한 변경 | ✅ Server-side (Functions) | payments write server-only, entitlements update admin-only. mock self-upgrade는 실 PG 전까지 본질적 잔존 |
+| PII 보호 | ✅ self/admin | preferences/consents/entitlements/payments 등 read를 self/admin으로 제한 |
+| admin 권한 검증 | ⚠️ rules `isAdmin()` + 클라이언트 가드 | Phase 3-C에서 Custom Claims로 강화 예정 |
 
 ---
 
@@ -312,7 +315,7 @@ dispatch(
 
 ### 결제
 
-`paymentApi.completeMock` 으로 entitlement 만 직접 갱신. 실 PG (Stripe / KakaoPay / Toss) 연동은 Phase 9 mock 이후 별도 작업. 결제 기록 자체는 `payments` 컬렉션에 남기지만 실제 거래는 발생하지 않음.
+mock 결제는 Functions callable(`completeMockPayment`)이 payment 상태 + entitlement를 서버 PLANS로 atomic 갱신한다(Phase 3-B). 실 PG (Stripe / KakaoPay / Toss) 연동 시 이 함수 본체를 결제 검증 + webhook으로 대체한다. mock은 실제 거래가 없다.
 
 ### chatRooms 컬렉션 ID
 
@@ -351,8 +354,9 @@ dispatch(
 
 ## 11. 다음 마일스톤
 
-- **Phase 3-B**: `payments.mockComplete` 등 결제 mock 흐름을 Functions 로 이전 + Firestore Rules collection 별 좁히기.
+- ~~**Phase 3-B**: 결제 mock 흐름 Functions 이전 + Firestore Rules collection 별 좁히기~~ — **완료** (`completeMockPayment` 등 + 컬렉션별 rules).
 - **Phase 3-C**: admin role 검증을 Functions / Custom Claims 로 이전, client 측 가드는 UX 안내만 담당.
+- **read 강화**: `profiles`/`profilePhotos`를 approved-only로 (클라이언트 공개 조회 쿼리 + rule 동시 변경).
 - **legacy bridge 제거**: matching / chat / mypage / profile / admin 리더를 새 컬렉션 기반으로 마이그레이션.
 - **매칭 점수**: nearest neighbor 휴리스틱 + 사용자 선호 가중치 도입, `score` / `reasonCodes` 기록.
 - **Phase 10**: 디자인 / 브랜딩 / 모션 폴리싱.

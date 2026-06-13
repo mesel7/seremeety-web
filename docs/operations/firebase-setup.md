@@ -1,16 +1,13 @@
 # Firebase 세팅 — seremeety-web
 
-이 프로젝트는 Firebase 풀스택(Auth / Firestore / Storage / Functions / Hosting)을 사용한다.
-새 환경(또는 새 개발자)에서 처음 띄울 때 필요한 설정을 정리한다.
+이 프로젝트는 **백엔드만 Firebase**(Auth / Firestore / Storage / Functions)를 쓴다. 웹 앱은 Vercel로
+배포한다([deployment.md](./deployment.md)). 새 환경(또는 새 개발자)에서 처음 띄울 때 필요한 설정을 정리한다.
 
 ## 1. 프로젝트 식별자
 
 - Firebase 프로젝트(`.firebaserc` default): `seremeety-web`
-- Hosting site(`firebase.json`): `seremeety-kr` → 라이브 URL `https://seremeety-kr.web.app`
 - Functions region: `asia-northeast3`(서울) — `functions/src/index.ts`의 `setGlobalOptions`에서 고정
-
-> 프로젝트 ID와 hosting site 이름이 다르다. CLI 명령에서 `--project`/`--only hosting:seremeety-kr`를
-> 다룰 때 헷갈리지 않도록 주의.
+- Functions runtime: `nodejs22`(`firebase.json`)
 
 ## 2. 활성화해야 할 서비스
 
@@ -18,14 +15,15 @@
 2. **Firestore Database** 생성(프로덕션 모드). 규칙은 레포의 `firestore.rules`로 배포.
 3. **Storage** 버킷 생성(프로필 사진 업로드). `next.config.mjs`의 `images.remotePatterns`가
    `firebasestorage.googleapis.com`을 허용하도록 이미 설정됨.
-4. **Functions**(Blaze 요금제 필요). region `asia-northeast3`.
-5. **Hosting** site `seremeety-kr`.
+4. **Functions**(Blaze 요금제 필요). region `asia-northeast3`, runtime `nodejs22`.
+
+> Hosting은 사용하지 않는다(웹은 Vercel). `firebase deploy`는 functions / firestore만 대상으로 한다.
 
 ## 3. Firestore 규칙 / 인덱스
 
-- 규칙: [`firestore.rules`](../../firestore.rules) — `reactions`/`matches`는 server-only write
-  (`allow write: if false`), 그 외 컬렉션은 현재 authenticated read/write로 광범위 허용(알려진 갭, 상세는
-  [functions-security](../domains/functions-security.md)).
+- 규칙: [`firestore.rules`](../../firestore.rules) — Phase 3-B 적용. `reactions`/`matches`/`payments`는
+  server-only write, `entitlements` update는 admin-only, 사적 컬렉션 read는 self/admin, 권한 상승 필드는
+  self write 차단. 상세는 [functions-security §4.1](../domains/functions-security.md).
 - 인덱스: [`firestore.indexes.json`](../../firestore.indexes.json) — 복합 인덱스 3개
   - `reactions` (`fromUserId`, `type`, `createdAt`) — 일일 한도 count 쿼리용
   - `chatRooms` (`users` array-contains, `lastMessage.sentAt` desc) — 채팅 목록 정렬용
